@@ -1,0 +1,229 @@
+---
+interface TabSection {
+  id: string;
+  label: string;
+}
+
+interface Tab {
+  id: string;
+  label: string;
+  sections: TabSection[];
+}
+
+interface Props {
+  tabs: Tab[];
+  activeTab: string;
+}
+
+const { tabs, activeTab } = Astro.props;
+---
+
+<div
+  class="w-[180px] bg-zinc-950/50 border-r border-zinc-700 flex flex-col overflow-y-auto"
+>
+  {
+    tabs.map((tab) => (
+      <div class="flex flex-col">
+        <button
+          class="py-4 px-2 text-left text-zinc-300 hover:bg-zinc-900 hover:text-purple-300 transition-colors text-sm font-medium border-l-4 border-transparent data-[active=true]:text-purple-300 data-[active=true]:border-purple-500 data-[active=true]:bg-zinc-900"
+          data-tab={tab.id}
+          data-active={tab.id === activeTab}
+        >
+          {tab.label}
+        </button>
+
+        <div
+          class="flex flex-col pl-4 overflow-hidden transition-all data-[visible=false]:max-h-0 data-[visible=true]:max-h-96 bg-zinc-800"
+          data-section-links={tab.id}
+          data-visible={tab.id === activeTab}
+        >
+          {tab.sections.map((section) => (
+            <a
+              href={`#${section.id}`}
+              class="py-2 px-2 text-zinc-400 hover:text-zinc-200 text-xs border-l border-zinc-700 capitalize"
+              data-section-link
+            >
+              {section.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+
+  <!-- Reset Button -->
+  <div class="mt-auto border-t border-zinc-800 pt-2 px-2 mb-2">
+    <button
+      id="reset-styles-btn"
+      class="w-full py-2 px-4 bg-zinc-700 hover:bg-zinc-600 text-white rounded flex items-center justify-center transition-colors"
+      data-confirm-state="false"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="mr-2"
+      >
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+        <path d="M8 8H3v5"></path>
+        <path d="M16 16h5v-5"></path>
+      </svg>
+      <span id="reset-button-text">Reset All</span>
+    </button>
+  </div>
+
+  <!-- Export Button -->
+  <div class="px-2 mb-2">
+    <button
+      id="export-styles-btn"
+      class="w-full py-2 px-4 bg-purple-700 hover:bg-purple-600 text-white rounded flex items-center justify-center transition-colors"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="mr-2"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      Export
+    </button>
+  </div>
+</div>
+
+<script>
+  import { setupTabNavigation } from "./utils/tabLogic";
+  import {
+    exportThemeStyles,
+    downloadThemeCSS,
+    initializeStyleManager,
+  } from "./utils/styleManager";
+
+  // Initialize tab navigation functionality when the component is mounted
+  document.addEventListener("DOMContentLoaded", () => {
+    setupTabNavigation();
+
+    // Setup reset button functionality with custom confirmation
+    const resetButton = document.getElementById("reset-styles-btn");
+    const resetButtonText = document.getElementById("reset-button-text");
+    let resetConfirmTimeout: number | null = null;
+
+    if (resetButton && resetButtonText) {
+      resetButton.addEventListener("click", () => {
+        const isInConfirmState =
+          resetButton.getAttribute("data-confirm-state") === "true";
+
+        if (!isInConfirmState) {
+          // First click - change to confirm state
+          resetButton.setAttribute("data-confirm-state", "true");
+          resetButton.classList.remove("bg-zinc-700", "hover:bg-zinc-600");
+          resetButton.classList.add("bg-red-600", "hover:bg-red-700");
+          resetButtonText.textContent = "Confirm Reset";
+
+          // Set timeout to revert after 3 seconds if not clicked again
+          resetConfirmTimeout = window.setTimeout(() => {
+            resetToOriginalState();
+          }, 3000);
+
+          // Setup click elsewhere to cancel
+          document.addEventListener("click", cancelResetOnClickElsewhere);
+        } else {
+          // Second click - perform the reset
+          if (resetConfirmTimeout) {
+            clearTimeout(resetConfirmTimeout);
+            resetConfirmTimeout = null;
+          }
+
+          document.removeEventListener("click", cancelResetOnClickElsewhere);
+
+          // Retrieve the initial styles from window.initialStyles
+          if (window.initialStyles) {
+            // Reset the current styles to the initial values
+            initializeStyleManager(structuredClone(window.initialStyles));
+
+            // Give visual feedback
+            resetButton.classList.remove("bg-red-600", "hover:bg-red-700");
+            resetButton.classList.add("bg-green-600");
+            resetButtonText.textContent = "Reset Complete!";
+
+            // Dispatch event to clear local storage
+            document.dispatchEvent(new CustomEvent("resetThemeStyles"));
+
+            // Reload the page to apply all default values to UI components
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } else {
+            console.error("Initial styles not found");
+            resetToOriginalState();
+          }
+        }
+      });
+
+      function resetToOriginalState() {
+        if (resetConfirmTimeout) {
+          clearTimeout(resetConfirmTimeout);
+          resetConfirmTimeout = null;
+        }
+
+        if (resetButton) {
+          resetButton.setAttribute("data-confirm-state", "false");
+          resetButton.classList.remove("bg-red-600", "hover:bg-red-700");
+          resetButton.classList.add("bg-zinc-700", "hover:bg-zinc-600");
+        }
+
+        if (resetButtonText) {
+          resetButtonText.textContent = "Reset All";
+        }
+
+        document.removeEventListener("click", cancelResetOnClickElsewhere);
+      }
+
+      function cancelResetOnClickElsewhere(event: MouseEvent) {
+        if (resetButton && !resetButton.contains(event.target as Node)) {
+          resetToOriginalState();
+        }
+      }
+    }
+
+    // Setup export button functionality
+    const exportButton = document.getElementById("export-styles-btn");
+    if (exportButton) {
+      exportButton.addEventListener("click", () => {
+        // First log the styles to console
+        const currentStyles = exportThemeStyles();
+        if (currentStyles) {
+        } else {
+          console.error("No styles object found in window.currentStyles");
+        }
+
+        // Then directly trigger the download (don't use the event)
+        downloadThemeCSS();
+
+        // Visual feedback
+        exportButton.classList.add("bg-green-600");
+        exportButton.textContent = "Downloaded!";
+
+        setTimeout(() => {
+          exportButton.classList.remove("bg-green-600");
+          exportButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Export`;
+        }, 2000);
+      });
+    }
+  });
+</script>

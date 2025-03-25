@@ -1,0 +1,596 @@
+---
+interface Props {
+  colorName: string;
+  colorValue: string;
+  shades: Record<string, string | any>; // Changed to allow any value type
+}
+
+const { colorName, colorValue, shades } = Astro.props;
+const shadeNumbers = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const defaultBaseShade = 500;
+
+// Helper function to determine reference shade
+function getReferenceShade(shade: number, baseShade: number): number | "site" {
+  if (shade === baseShade) return "site";
+
+  // For lighter shades (below base), reference the next darker shade
+  if (shade < baseShade) {
+    // Special case for the shade right below base, which references the base
+    if (shadeNumbers[shadeNumbers.indexOf(shade) + 1] === baseShade) {
+      return baseShade;
+    }
+    // Otherwise reference the next darker shade
+    return shadeNumbers[shadeNumbers.indexOf(shade) + 1];
+  }
+
+  // For darker shades (above base), reference the next lighter shade
+  // Special case for the shade right above base, which references the base
+  if (shadeNumbers[shadeNumbers.indexOf(shade) - 1] === baseShade) {
+    return baseShade;
+  }
+  // Otherwise reference the next lighter shade
+  return shadeNumbers[shadeNumbers.indexOf(shade) - 1];
+}
+
+// Function to generate the appropriate OKLCH formula for a shade
+function getShadeFormula(
+  shade: number,
+  baseShade: number,
+  colorName: string
+): string {
+  if (shade === baseShade) {
+    return `oklch(from var(--color-${colorName}) l c h)`;
+  }
+
+  const referenceShade = getReferenceShade(shade, baseShade);
+  const referenceVar =
+    referenceShade === "site"
+      ? `var(--color-${colorName})`
+      : `var(--color-${colorName}-${referenceShade})`;
+
+  const lFactor =
+    shade < baseShade ? "calc(1 - (1 - l) * 0.6)" : "calc(l * 0.8)";
+  const cFactor = shade < baseShade ? "calc(c * 0.8)" : "calc(c * 1.1)";
+
+  return `oklch(from ${referenceVar} ${lFactor} ${cFactor} h)`;
+}
+---
+
+<div class="mb-2" data-shades-section={colorName} data-color-name={colorName}>
+  <div class="flex justify-between items-center mb-3">
+    <h3 class="text-sm font-medium text-zinc-300">Shades</h3>
+    <button
+      class="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 reset-shades-btn"
+      data-reset-shades={colorName}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+        ></path><path d="M3 3v5h5"></path></svg
+      >
+      Reset
+    </button>
+  </div>
+
+  <!-- Hidden radio buttons for base shade selection -->
+  <div class="hidden">
+    {
+      shadeNumbers.map((shade) => (
+        <input
+          type="radio"
+          name={`base-shade-${colorName}`}
+          value={shade}
+          checked={false}
+          class="base-shade-radio"
+          data-color-name={colorName}
+          data-shade-value={shade}
+        />
+      ))
+    }
+  </div>
+
+  <!-- Shade swatches in a row -->
+  <div class="flex flex-wrap gap-0.5 mb-3">
+    {
+      shadeNumbers.map((shade) => (
+        <div class="flex flex-col items-center">
+          <button
+            class="size-8 border rounded border-zinc-600 hover:border-purple-400 transition-colors shade-swatch relative data-[base=true]:border-2 data-[base=true]:border-purple-500 data-[active=true]:ring-2 data-[active=true]:ring-purple-400"
+            style={`background-color: ${shades[String(shade)] || colorValue};`}
+            data-shade-swatch={`${colorName}-${shade}`}
+            data-toggle-shade-panel={`${colorName}-${shade}`}
+            data-base={shade === defaultBaseShade}
+            data-shade-value={shade}
+            data-active="false"
+            aria-label={`Shade ${shade}`}
+          >
+            {shade === defaultBaseShade && (
+              <span
+                class="base-shade-dot absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full border border-zinc-900"
+                title="Base shade"
+              />
+            )}
+          </button>
+          <span class="text-xs text-zinc-400 mt-1">{shade}</span>
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Slide-in shade configuration panels -->
+  {
+    shadeNumbers.map((shade) => (
+      <div
+        class="overflow-hidden transition-all max-h-0 mt-0 pl-2 border-l-2 border-zinc-700 opacity-0 shade-panel"
+        data-shade-panel={`${colorName}-${shade}`}
+        data-shade-value={shade}
+      >
+        <div class="py-2">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <div
+                class="w-8 h-8 rounded mr-3 border border-zinc-600"
+                style={`background-color: ${shades[String(shade)] || colorValue};`}
+                data-shade-preview={`${colorName}-${shade}`}
+              />
+              <h4 class="text-lg font-medium text-zinc-200">
+                Shade {shade}
+                <span
+                  data-base-indicator={`${colorName}-${shade}`}
+                  class={
+                    shade === defaultBaseShade
+                      ? "ml-2 text-sm font-normal text-purple-400"
+                      : "hidden"
+                  }
+                >
+                  (Base)
+                </span>
+              </h4>
+            </div>
+
+            <button
+              class="px-3 py-1 bg-purple-900 hover:bg-purple-800 text-purple-100 rounded text-xs set-base-btn"
+              data-set-base-shade={`${colorName}-${shade}`}
+              style={shade === defaultBaseShade ? "visibility: hidden" : ""}
+            >
+              Set as base
+            </button>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium mb-2 text-zinc-300">
+              Color Value
+            </label>
+            <input
+              type="text"
+              class="border border-zinc-700 rounded px-2 py-1 w-full bg-zinc-800 text-zinc-300 text-sm"
+              data-color-shade={`${colorName}.${shade}`}
+              data-color-shade-input
+            />
+          </div>
+
+          <div
+            class="shift-controls"
+            data-shade-shifts={`${colorName}-${shade}`}
+            style={shade === defaultBaseShade ? "display: none" : ""}
+          >
+            <h5 class="text-sm font-medium text-zinc-400 mb-3">
+              Shift Controls
+            </h5>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="shift-control">
+                <label class="text-xs text-zinc-500 block mb-1">L Shift</label>
+                <div class="flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={shade < 500 ? "0.6" : "0.8"}
+                    class="w-full shift-slider"
+                    data-color-name={colorName}
+                    data-shift-type="l"
+                    data-shade-shift-slider={`${colorName}-${shade}-l`}
+                  />
+                  <span
+                    class="text-xs ml-1 w-8 text-zinc-400 shift-value"
+                    data-shift-value={`${colorName}-${shade}-l`}
+                  >
+                    {shade < 500 ? "0.6" : "0.8"}
+                  </span>
+                </div>
+              </div>
+              <div class="shift-control">
+                <label class="text-xs text-zinc-500 block mb-1">C Shift</label>
+                <div class="flex items-center">
+                  <input
+                    type="range"
+                    min="0"
+                    max="2"
+                    step="0.05"
+                    value={shade < 500 ? "0.8" : "1.1"}
+                    class="w-full shift-slider"
+                    data-color-name={colorName}
+                    data-shift-type="c"
+                    data-shade-shift-slider={`${colorName}-${shade}-c`}
+                  />
+                  <span
+                    class="text-xs ml-1 w-8 text-zinc-400 shift-value"
+                    data-shift-value={`${colorName}-${shade}-c`}
+                  >
+                    {shade < 500 ? "0.8" : "1.1"}
+                  </span>
+                </div>
+              </div>
+              <div class="shift-control">
+                <label class="text-xs text-zinc-500 block mb-1">H Shift</label>
+                <div class="flex items-center">
+                  <input
+                    type="range"
+                    min="-30"
+                    max="30"
+                    step="1"
+                    value="0"
+                    class="w-full shift-slider"
+                    data-color-name={colorName}
+                    data-shift-type="h"
+                    data-shade-shift-slider={`${colorName}-${shade}-h`}
+                  />
+                  <span
+                    class="text-xs ml-1 w-8 text-zinc-400 shift-value"
+                    data-shift-value={`${colorName}-${shade}-h`}
+                  >
+                    0
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  import { setupColorShades } from "./utils/colorLogic";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Function to load styles from localStorage
+    function loadStylesFromLocalStorage() {
+      const STORAGE_KEY = "altitude-theme-styles";
+      try {
+        const savedStyles = localStorage.getItem(STORAGE_KEY);
+        if (savedStyles) {
+          (window as any).currentStyles = JSON.parse(savedStyles);
+
+          // Ensure baseShades object exists
+          if (!(window as any).currentStyles.colours.baseShades) {
+            (window as any).currentStyles.colours.baseShades = {};
+          }
+        }
+      } catch (e) {
+        console.error("Error loading styles from local storage:", e);
+      }
+    }
+
+    // Load styles from localStorage before initializing
+    loadStylesFromLocalStorage();
+
+    // Initialize the color shade managers
+    setupColorShades();
+
+    // Update color shade inputs with values directly from the current styles object
+    function updateShadeInputs() {
+      const currentStyles = (window as any).currentStyles;
+      if (
+        !currentStyles ||
+        !currentStyles.colours ||
+        !currentStyles.colours.shades
+      ) {
+        return;
+      }
+
+      document.querySelectorAll("[data-color-shade-input]").forEach((input) => {
+        const inputEl = input as HTMLInputElement;
+        const colorShade = inputEl.getAttribute("data-color-shade");
+        if (!colorShade) return;
+
+        const [colorName, shade] = colorShade.split(".");
+
+        // Check if this is a base shade
+        const isBase =
+          document
+            .querySelector(`[data-shade-swatch="${colorName}-${shade}"]`)
+            ?.getAttribute("data-base") === "true";
+
+        if (isBase) {
+          // For base shade, reference the site color variable directly
+          inputEl.value = `oklch(from var(--color-${colorName}) l c h)`;
+        } else if (
+          currentStyles.colours.shades[colorName] &&
+          currentStyles.colours.shades[colorName][shade]
+        ) {
+          // For other shades, use the stored value
+          inputEl.value = currentStyles.colours.shades[colorName][shade];
+        }
+      });
+    }
+
+    // Function to update the stored shade values with the correct formula format
+    function updateStoredBaseShadeFormula(
+      colorName: string,
+      baseShade: string | number
+    ) {
+      const currentStyles = (window as any).currentStyles;
+      if (!currentStyles?.colours?.shades?.[colorName]) return;
+
+      // Make sure the base shade uses the formula reference
+      const baseShadeValue = `oklch(from var(--color-${colorName}) l c h)`;
+      currentStyles.colours.shades[colorName][baseShade] = baseShadeValue;
+
+      // Store the base shade setting
+      if (!currentStyles.colours.baseShades) {
+        currentStyles.colours.baseShades = {};
+      }
+      currentStyles.colours.baseShades[colorName] = parseInt(
+        baseShade.toString()
+      );
+
+      // Trigger a quiet save without UI updates
+      const updateEvent = new CustomEvent("storeStylesUpdate", {
+        bubbles: true,
+        detail: { quiet: true },
+      });
+      document.dispatchEvent(updateEvent);
+    }
+
+    // Call immediately to populate inputs with correct values
+    updateShadeInputs();
+
+    // Also listen for theme updates to refresh inputs
+    document.addEventListener("shadesUpdated", () => {
+      updateShadeInputs();
+    });
+
+    // Add event handler for base shade changes
+    document.querySelectorAll(".base-shade-radio").forEach((radio) => {
+      radio.addEventListener("change", (e) => {
+        const radioEl = e.target as HTMLInputElement;
+        const colorName = radioEl.getAttribute("data-color-name");
+        const shadeValue = radioEl.value;
+
+        if (colorName && shadeValue) {
+          // First update the stored base shade formula
+          updateStoredBaseShadeFormula(colorName, shadeValue);
+
+          // Then update the UI with a small delay
+          setTimeout(() => {
+            updateShadeInputs();
+          }, 100);
+        }
+      });
+    });
+
+    // Set up toggle functionality for shade panels using same logic as aliases
+    document.querySelectorAll("[data-toggle-shade-panel]").forEach((toggle) => {
+      const toggleBtn = toggle as HTMLElement;
+
+      toggleBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        // Get the panel ID from the button
+        const shadeId = toggleBtn.getAttribute("data-toggle-shade-panel");
+        if (!shadeId) return;
+
+        // Check if this was already active
+        const wasActive = toggleBtn.getAttribute("data-active") === "true";
+        const targetPanel = document.querySelector(
+          `[data-shade-panel="${shadeId}"]`
+        ) as HTMLElement;
+
+        // If already active, close it
+        if (wasActive && targetPanel) {
+          toggleBtn.setAttribute("data-active", "false");
+          targetPanel.style.maxHeight = "0";
+          targetPanel.style.opacity = "0";
+          return;
+        }
+
+        // Check if any panel is currently open
+        const anyPanelOpen = document.querySelector(
+          "[data-toggle-shade-panel][data-active='true']"
+        );
+        const instantSwitch = anyPanelOpen !== null;
+
+        // Close any other open panels without animation if instant switch
+        document.querySelectorAll(".shade-panel").forEach((panel) => {
+          if (panel !== targetPanel) {
+            const panelEl = panel as HTMLElement;
+            if (instantSwitch) {
+              // Remove transition temporarily for instant close
+              panelEl.style.transition = "none";
+            }
+
+            panelEl.style.maxHeight = "0";
+            panelEl.style.opacity = "0";
+
+            if (instantSwitch) {
+              // Force reflow to apply the change immediately
+              void panelEl.offsetWidth;
+              // Restore transition after a tiny delay
+              setTimeout(() => {
+                panelEl.style.transition = "";
+              }, 10);
+            }
+          }
+        });
+
+        // Reset all active states first
+        document
+          .querySelectorAll("[data-toggle-shade-panel]")
+          .forEach((btn) => {
+            if (btn !== toggleBtn) {
+              btn.setAttribute("data-active", "false");
+            }
+          });
+
+        // Mark this button as active
+        toggleBtn.setAttribute("data-active", "true");
+
+        // Show the selected panel
+        if (targetPanel) {
+          if (instantSwitch) {
+            // Remove transition temporarily for instant open
+            targetPanel.style.transition = "none";
+          }
+
+          targetPanel.style.opacity = "1";
+          targetPanel.style.maxHeight = `${targetPanel.scrollHeight + 50}px`;
+
+          if (instantSwitch) {
+            // Force reflow to apply the change immediately
+            void targetPanel.offsetWidth;
+            // Restore transition after a tiny delay
+            setTimeout(() => {
+              targetPanel.style.transition = "";
+            }, 10);
+          }
+        }
+      });
+    });
+
+    // Setup "Set as base" button click handlers
+    document.querySelectorAll(".set-base-btn").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent event bubbling
+
+        const shadeInfo =
+          (e.currentTarget as HTMLElement)
+            .getAttribute("data-set-base-shade")
+            ?.split("-") || [];
+        if (shadeInfo.length !== 2) return;
+
+        const colorName = shadeInfo[0];
+        const shade = parseInt(shadeInfo[1]);
+
+        // Find the radio button with this shade value and trigger change
+        const radioBtn = document.querySelector(
+          `input[type="radio"][name="base-shade-${colorName}"][value="${shade}"]`
+        ) as HTMLInputElement;
+
+        if (radioBtn) {
+          // Update the stored formula first
+          updateStoredBaseShadeFormula(colorName, shade);
+
+          // Then trigger the UI update
+          radioBtn.checked = true;
+          // Create and dispatch a change event
+          const event = new Event("change", { bubbles: true });
+          radioBtn.dispatchEvent(event);
+        }
+      });
+    });
+
+    // Setup reset button click handlers
+    document.querySelectorAll("[data-reset-shades]").forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const colorName = (e.currentTarget as HTMLElement).getAttribute(
+          "data-reset-shades"
+        );
+        if (!colorName) return;
+
+        // Trigger a custom event that the ShadeManager will listen for
+        document.dispatchEvent(
+          new CustomEvent("resetShades", {
+            detail: { colorName },
+          })
+        );
+      });
+    });
+
+    // Add event handler for color shade input changes
+    document.querySelectorAll("[data-color-shade-input]").forEach((input) => {
+      input.addEventListener("change", (e) => {
+        const inputEl = e.target as HTMLInputElement;
+        // Extract the color name from the input's data attribute
+        const colorShade = inputEl.getAttribute("data-color-shade");
+        if (!colorShade) return;
+
+        const [colorName, shade] = colorShade.split(".");
+
+        // Check if this is a base shade
+        const isBase =
+          document
+            .querySelector(`[data-shade-swatch="${colorName}-${shade}"]`)
+            ?.getAttribute("data-base") === "true";
+
+        // For base shade, always use the site color reference
+        if (isBase) {
+          const formulaValue = `oklch(from var(--color-${colorName}) l c h)`;
+          inputEl.value = formulaValue;
+
+          // Ensure this specific format is stored
+          if ((window as any).currentStyles?.colours?.shades?.[colorName]) {
+            (window as any).currentStyles.colours.shades[colorName][shade] =
+              formulaValue;
+          }
+        } else {
+          // For non-base shades, use the input value
+          if ((window as any).currentStyles?.colours?.shades?.[colorName]) {
+            (window as any).currentStyles.colours.shades[colorName][shade] =
+              inputEl.value;
+          }
+        }
+
+        // Trigger a shadesUpdated event to update the styles object
+        document.dispatchEvent(
+          new CustomEvent("shadesUpdated", {
+            detail: { colorName },
+          })
+        );
+      });
+    });
+
+    // Make sure all base shades use the formula format on initial load
+    setTimeout(() => {
+      document.querySelectorAll("[data-base='true']").forEach((baseSwatch) => {
+        const swatchId = (baseSwatch as HTMLElement).getAttribute(
+          "data-shade-swatch"
+        );
+        if (!swatchId) return;
+
+        const [colorName, shade] = swatchId.split("-");
+        if (colorName && shade) {
+          updateStoredBaseShadeFormula(colorName, shade);
+        }
+      });
+    }, 300);
+
+    // Remove the click-outside listener
+    // The panels will only close when clicking the swatch again or opening another one
+  });
+</script>
+
+<style>
+  /* Transition for shade panels - ensure they always open downward */
+  .shade-panel {
+    transition:
+      max-height 0.3s ease-out,
+      opacity 0.25s ease-in-out;
+    transform-origin: top center;
+  }
+
+  /* Add some transition for the active swatch indicator */
+  .shade-swatch {
+    transition: all 0.2s ease;
+  }
+</style>

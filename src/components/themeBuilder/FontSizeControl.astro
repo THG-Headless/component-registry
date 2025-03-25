@@ -1,0 +1,167 @@
+---
+interface Props {
+  device: "desktop" | "mobile";
+  size: string;
+  props: {
+    font_size: number;
+    line_height: number;
+  };
+}
+
+const { device, size, props } = Astro.props;
+const toggleId = `${device}-${size}`;
+---
+
+<div class="border border-zinc-700 rounded bg-zinc-800 overflow-hidden">
+  <div
+    class="flex p-3 cursor-pointer hover:bg-zinc-700 transition-colors"
+    data-typography-toggle={toggleId}
+  >
+    <div class="w-24 flex-shrink-0">
+      <span class="text-lg font-medium text-zinc-200 block">
+        {size}
+      </span>
+      <div class="flex flex-col text-zinc-400 text-xs mt-1">
+        <span data-summary-fontsize={`${device}.${size}`}
+          >Font: <span data-font-size-value={`${device}.${size}`}
+            >{props.font_size}px</span
+          ></span
+        >
+        <span data-summary-lineheight={`${device}.${size}`}
+          >Line: <span data-line-height-value={`${device}.${size}`}
+            >{props.line_height}px</span
+          ></span
+        >
+      </div>
+    </div>
+
+    <div class="flex-1 pl-4 border-l border-zinc-700">
+      <!-- Line height visualization with proper vertical centering -->
+      <div class="flex items-center h-full">
+        <div class="w-full relative" style={`height: ${props.line_height}px;`}>
+          <!-- Top line -->
+          <div
+            class="w-full h-[1px] border-t border-dotted border-white/50 absolute"
+            style="top: 0;"
+          >
+          </div>
+
+          <!-- The actual text centered vertically - UPDATED for proper centering -->
+          <span
+            class="text-zinc-200 typography-preview absolute left-0 top-1/2 transform -translate-y-1/2"
+            data-preview-id={toggleId}
+            style={`font-size: ${props.font_size}px;`}
+          >
+            Altitude
+          </span>
+
+          <!-- Bottom line -->
+          <div
+            class="w-full h-[1px] border-t border-dotted border-white/50 absolute"
+            style={`top: ${props.line_height - 1}px;`}
+          >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ml-auto pl-3 flex items-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 transform transition-transform duration-200"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        data-chevron={toggleId}
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </div>
+  </div>
+
+  <div
+    class="hidden p-3 pt-0 border-t border-zinc-700"
+    data-typography-details={toggleId}
+  >
+    <!-- Only controls in expanded view, no duplicate preview -->
+    <div class="py-2">
+      <!-- Font size input with + and - buttons -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2 text-zinc-300">
+          Font Size (px)
+        </label>
+        <div class="flex items-stretch">
+          <button
+            class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded-l transition-colors font-bold"
+            data-dec-fontsize
+            data-field={`${device}.${size}.font_size`}>-</button
+          >
+          <input
+            type="number"
+            value={props.font_size}
+            class="border-y border-zinc-700 py-1.5 px-2 w-full bg-zinc-800 text-zinc-300 text-center typography-input no-spinner"
+            data-typography-field={`${device}.${size}.font_size`}
+            min="1"
+          />
+          <button
+            class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded-r transition-colors font-bold"
+            data-inc-fontsize
+            data-field={`${device}.${size}.font_size`}>+</button
+          >
+        </div>
+        <div
+          class="text-amber-500 text-xs mt-1 font-medium hidden"
+          data-size-warning={`${device}.${size}.font_size`}
+        >
+        </div>
+      </div>
+
+      <!-- Line height input with + and - buttons -->
+      <div class="mb-2">
+        <label class="block text-sm font-medium mb-2 text-zinc-300">
+          Line Height (px)
+        </label>
+        <div class="flex items-stretch">
+          <button
+            class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded-l transition-colors font-bold"
+            data-dec-fontsize
+            data-field={`${device}.${size}.line_height`}>-</button
+          >
+          <input
+            type="number"
+            value={props.line_height}
+            class="border-y border-zinc-700 py-1.5 px-2 w-full bg-zinc-800 text-zinc-300 text-center typography-input no-spinner"
+            data-typography-field={`${device}.${size}.line_height`}
+            min="1"
+          />
+          <button
+            class="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 rounded-r transition-colors font-bold"
+            data-inc-fontsize
+            data-field={`${device}.${size}.line_height`}>+</button
+          >
+        </div>
+        <div
+          class="text-amber-500 text-xs mt-1 font-medium hidden"
+          data-lineheight-warning={`${device}.${size}.line_height`}
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Hide input spinner arrows */
+  .no-spinner::-webkit-inner-spin-button,
+  .no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinner {
+    -moz-appearance: textfield;
+  }
+</style>

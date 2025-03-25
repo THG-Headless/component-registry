@@ -1,0 +1,17 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Sidebar from "../components/themeBuilder/sidebar.astro";
+import StyleWrapper from "../components/styleWrapper.astro";
+import ComponentList from "../components/componentList.tsx";
+---
+
+<Layout subtitle="Theme Builder">
+  <div class="flex h-full w-full">
+    <Sidebar />
+    <div class="flex h-full w-full">
+      <StyleWrapper>
+        <ComponentList client:load />
+      </StyleWrapper>
+    </div>
+  </div>
+</Layout>

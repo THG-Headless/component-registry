@@ -1,0 +1,230 @@
+---
+import FontSizeControl from "./FontSizeControl.astro";
+import FontWeightControl from "./FontWeightControl.astro";
+
+interface TypographySetting {
+  font_size: number;
+  line_height: number;
+}
+
+interface Props {
+  desktop: Record<string, TypographySetting>;
+  mobile: Record<string, TypographySetting>;
+  weights: Record<string, number>;
+}
+
+const { desktop, mobile, weights } = Astro.props;
+
+// Helper function to get font size order for sorting
+const getFontOrder = (size: string): number => {
+  const sizeMap: Record<string, number> = {
+    xs: 1,
+    sm: 2,
+    body: 3,
+    md: 4,
+    lg: 5,
+    "2lg": 6,
+    xl: 7,
+    "2xl": 8,
+  };
+  return sizeMap[size] || 0;
+};
+
+// Sort sizes by predefined order
+const desktopSizes = Object.entries(desktop).sort(
+  (a, b) => getFontOrder(a[0]) - getFontOrder(b[0])
+);
+
+const mobileSizes = Object.entries(mobile).sort(
+  (a, b) => getFontOrder(a[0]) - getFontOrder(b[0])
+);
+---
+
+<div class="tab-content hidden" data-tab-content="typography">
+  <h2 id="desktop-typography" class="text-xl font-bold mb-4 text-zinc-100 pt-2">
+    Desktop Typography
+  </h2>
+
+  <div class="space-y-3 mb-6">
+    {
+      desktopSizes.map(([size, props]) => (
+        <FontSizeControl device="desktop" size={size} props={props} />
+      ))
+    }
+  </div>
+
+  <h2
+    id="mobile-typography"
+    class="text-xl font-bold mb-4 mt-8 text-zinc-100 pt-2"
+  >
+    Mobile Typography
+  </h2>
+
+  <div class="space-y-3 mb-6">
+    {
+      mobileSizes.map(([size, props]) => (
+        <FontSizeControl device="mobile" size={size} props={props} />
+      ))
+    }
+  </div>
+
+  <h2 id="font-weights" class="text-xl font-bold mb-4 mt-8 text-zinc-100 pt-2">
+    Font Weights
+  </h2>
+
+  <FontWeightControl weights={weights} />
+</div>
+
+<script>
+  import { setupTypographyControls } from "./utils/typographyLogic";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupTypographyControls();
+
+    // Add toggle functionality for typography sections
+    document.querySelectorAll("[data-typography-toggle]").forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        const key = (toggle as HTMLElement).dataset.typographyToggle;
+        if (!key) return;
+
+        const detailsEl = document.querySelector(
+          `[data-typography-details="${key}"]`
+        );
+        const chevronEl = document.querySelector(`[data-chevron="${key}"]`);
+
+        if (detailsEl && chevronEl) {
+          const isHidden = detailsEl.classList.contains("hidden");
+
+          // Toggle visibility
+          if (isHidden) {
+            detailsEl.classList.remove("hidden");
+            chevronEl.classList.add("rotate-180");
+          } else {
+            detailsEl.classList.add("hidden");
+            chevronEl.classList.remove("rotate-180");
+          }
+        }
+      });
+    });
+
+    // Improved function to update both font size and line height visualizers
+    function updateLineHeightVisualizers() {
+      document.querySelectorAll("[data-typography-field]").forEach((field) => {
+        const target = field as HTMLInputElement;
+        const fieldPath = target.getAttribute("data-typography-field");
+        if (!fieldPath) return;
+
+        const [device, size, property] = fieldPath.split(".");
+        const previewId = `${device}-${size}`;
+        const value = parseInt(target.value);
+
+        // Update the summary text in the collapsed view
+        if (property === "font_size") {
+          // Update font size summary text
+          const fontSizeSummary = document.querySelector(
+            `[data-summary-fontsize="${device}.${size}"]`
+          );
+          if (fontSizeSummary) {
+            fontSizeSummary.textContent = `Font: ${value}px`;
+          }
+
+          // Also update the font size preview
+          const previewElement = document.querySelector(
+            `[data-preview-id="${previewId}"]`
+          ) as HTMLElement;
+          if (previewElement) {
+            previewElement.style.fontSize = `${value}px`;
+            // No need to set line-height as we're using CSS transform for vertical centering
+          }
+        } else if (property === "line_height") {
+          // Update line height summary text
+          const lineHeightSummary = document.querySelector(
+            `[data-summary-lineheight="${device}.${size}"]`
+          );
+          if (lineHeightSummary) {
+            lineHeightSummary.textContent = `Line: ${value}px`;
+          }
+
+          // Update the container height to match line height
+          const previewElement = document.querySelector(
+            `[data-preview-id="${previewId}"]`
+          );
+          if (!previewElement) return;
+
+          const container = previewElement.parentElement;
+          if (container) {
+            container.style.height = `${value}px`;
+
+            // Update bottom line position
+            const bottomLine = container.querySelector(".border-t:last-child");
+            if (bottomLine) {
+              (bottomLine as HTMLElement).style.top = `${value - 1}px`;
+            }
+
+            // No need to explicitly position the text element as it's controlled by CSS
+          }
+        }
+      });
+    }
+
+    // Add event listener for typography changes
+    document.addEventListener("typographyChanged", () => {
+      updateLineHeightVisualizers();
+    });
+
+    // Add event listener for the new global typography preview update
+    document.addEventListener("updateTypographyPreviews", () => {
+      updateLineHeightVisualizers();
+
+      // Also ensure all typography sections are properly expanded/collapsed
+      // This helps ensure everything is visible and styled correctly
+      document
+        .querySelectorAll("[data-typography-toggle]")
+        .forEach((toggle) => {
+          const key = (toggle as HTMLElement).dataset.typographyToggle;
+          if (!key) return;
+
+          const detailsEl = document.querySelector(
+            `[data-typography-details="${key}"]`
+          );
+          const chevronEl = document.querySelector(`[data-chevron="${key}"]`);
+
+          if (detailsEl) {
+            // Apply the correct visibility state based on the collapsed status
+            const shouldBeHidden = detailsEl.classList.contains("hidden");
+            if (shouldBeHidden && chevronEl) {
+              chevronEl.classList.remove("rotate-180");
+            } else if (chevronEl) {
+              chevronEl.classList.add("rotate-180");
+            }
+          }
+        });
+    });
+
+    // Run this once on page load to make sure all previews are updated initially
+    // This helps with initial rendering issues
+    setTimeout(() => {
+      updateLineHeightVisualizers();
+    }, 100);
+  });
+</script>
+
+<style>
+  /* Hide input spinner arrows */
+  .no-spinner::-webkit-inner-spin-button,
+  .no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinner {
+    -moz-appearance: textfield;
+  }
+
+  /* Cursor styles for font weight handles */
+  .font-weight-handle {
+    cursor: grab;
+  }
+  .font-weight-handle:active {
+    cursor: grabbing;
+  }
+</style>

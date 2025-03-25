@@ -1,0 +1,28 @@
+---
+import { styles } from "./utils/defaultTheme";
+import SkinConfigurator from "./SkinConfigurator.astro";
+
+const formatSkinName = (skin: string) => {
+  if (skin === "skin") return "Default";
+  return skin
+    .replace(/^skin/, "")
+    .replace(/([A-Z])/g, " $1")
+    .trim();
+};
+---
+
+<div class="tab-content hidden" data-tab-content="skins">
+  {
+    Object.keys(styles.skins).map((skin) => (
+      <>
+        <h2
+          id={`skin-${skin}`}
+          class="text-xl font-bold mb-4 text-zinc-100 pt-2 capitalize"
+        >
+          {formatSkinName(skin)}
+        </h2>
+        <SkinConfigurator skinName={skin} />
+      </>
+    ))
+  }
+</div>

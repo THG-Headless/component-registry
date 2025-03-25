@@ -1,0 +1,105 @@
+---
+interface AnimationTiming {
+  [key: string]: number;
+}
+
+interface Props {
+  radius: string;
+  shadow: string;
+  animation: AnimationTiming;
+}
+
+const { radius, shadow, animation } = Astro.props;
+---
+
+<div class="tab-content hidden" data-tab-content="other">
+  <h2 id="border-radius" class="text-xl font-bold mb-4 text-zinc-100 pt-2">
+    Border Radius
+  </h2>
+  <div class="mb-8">
+    <label class="block text-sm font-medium mb-2 text-zinc-300">
+      Border Radius
+    </label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value={radius}
+        class="border border-zinc-700 rounded px-2 py-1 w-full mb-3 bg-zinc-800 text-zinc-300"
+        data-radius-field
+      />
+      <div
+        class="flex justify-center py-4 bg-zinc-800 rounded border border-zinc-700"
+      >
+        <div
+          class="w-20 h-20 bg-blue-500 radius-preview"
+          style={`border-radius: ${radius};`}
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 id="shadow" class="text-xl font-bold mb-4 mt-8 text-zinc-100 pt-2">
+    Shadow
+  </h2>
+  <div class="mb-8">
+    <label class="block text-sm font-medium mb-2 text-zinc-300">
+      Box Shadow
+    </label>
+    <textarea
+      class="border border-zinc-700 rounded px-2 py-1 w-full h-20 mb-3 bg-zinc-800 text-zinc-300"
+      data-shadow-field>{shadow}</textarea
+    >
+    <div
+      class="p-8 flex justify-center bg-zinc-800 rounded border border-zinc-700"
+    >
+      <div
+        class="w-32 h-32 bg-zinc-700 shadow-preview"
+        style={`box-shadow: ${shadow};`}
+      >
+      </div>
+    </div>
+  </div>
+
+  <h2
+    id="animation-timing"
+    class="text-xl font-bold mb-4 mt-8 text-zinc-100 pt-2"
+  >
+    Animation Timing
+  </h2>
+  {
+    Object.entries(animation).map(([name, value]) => (
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2 text-zinc-300">
+          {name} (s)
+        </label>
+        <div class="flex flex-col">
+          <input
+            type="number"
+            value={value}
+            step="0.1"
+            class="border border-zinc-700 rounded px-2 py-1 w-full mb-3 bg-zinc-800 text-zinc-300"
+            data-animation-field={name}
+          />
+          <div class="flex justify-center py-4 bg-zinc-800 rounded border border-zinc-700">
+            <button
+              class="px-6 py-3 bg-blue-500 text-zinc-100 rounded transition-all animation-preview"
+              data-animation-name={name}
+              style={`transition-duration: ${value}s;`}
+            >
+              Hover me
+            </button>
+          </div>
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  import { setupOtherControls } from "./utils/otherLogic";
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupOtherControls();
+  });
+</script>

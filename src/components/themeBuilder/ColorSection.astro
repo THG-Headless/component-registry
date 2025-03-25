@@ -1,0 +1,48 @@
+---
+import ColorPicker from "./ColorPicker.astro";
+import ColorShades from "./ColorShades.astro";
+import ColorAliases from "./ColorAliases.astro";
+
+// Updated both interfaces to use more flexible typing
+interface Props {
+  colorName: string;
+  colorValue: string;
+  colorShades: Record<string, string | any>; // Already updated
+  colorAliases: Record<string, string | any>; // Updated to be more flexible
+}
+
+const { colorName, colorValue, colorShades, colorAliases } = Astro.props;
+const isSimpleColor = colorName === "white" || colorName === "black";
+---
+
+<div id={`color-${colorName}`} class="mb-8 pb-6 border-b border-zinc-700">
+  <h2 class="text-xl font-bold mb-4 text-zinc-100 pt-2 capitalize">
+    {colorName}
+  </h2>
+
+  <div>
+    <ColorPicker
+      id={`site-color-${colorName}`}
+      color={colorValue}
+      label="Site Variable Colour"
+      name={`site.${colorName}`}
+    />
+  </div>
+
+  {
+    !isSimpleColor && (
+      <>
+        <ColorShades
+          colorName={colorName}
+          colorValue={colorValue}
+          shades={colorShades}
+        />
+        <ColorAliases
+          colorName={colorName}
+          aliases={colorAliases}
+          shades={Object.keys(colorShades)}
+        />
+      </>
+    )
+  }
+</div>

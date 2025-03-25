@@ -1,0 +1,351 @@
+---
+// Import the registry data
+import registryData from "../../registry.json";
+import ComponentPreview from "./ComponentPreview.astro";
+
+// TypeScript interfaces for type safety
+interface RegistryFile {
+  path: string;
+  type: string;
+}
+
+interface RegistryComponent {
+  name: string;
+  type: string;
+  title: string;
+  description: string;
+  registryDependencies?: string[];
+  files: RegistryFile[];
+}
+
+interface ProcessedComponent extends RegistryComponent {
+  formattedType: string;
+  rawType: string;
+}
+
+interface ComponentsByType {
+  [key: string]: ProcessedComponent[];
+}
+
+interface ClientComponent {
+  title: string;
+  type: string;
+  description: string;
+  name: string;
+  path: string;
+}
+
+// Process each item to format the type tag
+const components: ProcessedComponent[] = registryData.items.map(
+  (item: RegistryComponent) => ({
+    ...item,
+    formattedType: item.type
+      .replace("registry:", "")
+      .replace(/^ui$/i, "UI") // Capitalize "ui" as "UI"
+      .replace(/^\w/, (c) => c.toUpperCase()), // Capitalize first letter for other types
+    rawType: item.type.replace("registry:", ""), // Get the raw type without the prefix
+  })
+);
+
+// Group components by their type
+const componentsByType: ComponentsByType = components.reduce(
+  (acc: ComponentsByType, component) => {
+    const type = component.rawType;
+    if (!acc[type]) {
+      acc[type] = [];
+    }
+    acc[type].push(component);
+    return acc;
+  },
+  {}
+);
+
+// Define the order of types
+const typeOrder: string[] = [
+  "ui",
+  "component",
+  "block",
+  "page",
+  "file",
+  "lib",
+  "hook",
+];
+
+// Get all types and sort them
+const allTypes: string[] = Object.keys(componentsByType);
+const sortedTypes: string[] = [
+  // First, include the predefined types in the specified order (if they exist)
+  ...typeOrder.filter((type) => allTypes.includes(type)),
+  // Then include any other types in alphabetical order
+  ...allTypes.filter((type) => !typeOrder.includes(type)).sort(),
+];
+
+// Sort components within each type alphabetically by title
+for (const type in componentsByType) {
+  componentsByType[type].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+// Prepare component data for client-side JavaScript
+const clientComponentData: ClientComponent[] = components.map((component) => ({
+  title: component.title,
+  type: component.formattedType,
+  description: component.description,
+  name: component.name || "",
+  path: component.files?.[0]?.path || "",
+}));
+---
+
+<div class="container mx-auto px-4 py-8">
+  {
+    sortedTypes.map((type) => (
+      <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 capitalize">
+          {type === "ui" ? "UI" : type}
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {componentsByType[type].map((component) => (
+            <div class="rounded-lg overflow-hidden component-card">
+              <div class="relative w-full" style="padding-top: 66.67%;">
+                <div class="absolute inset-0 skin flex items-center justify-center component-preview border border-zinc-700">
+                  {component.files && component.files.length > 0 && (
+                    <ComponentPreview
+                      componentPath={component.files[0].path}
+                      client:load
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div class="p-4 bg-zinc-800">
+                <div class="flex justify-between items-start">
+                  <h3 class="text-md font-semibold">{component.title}</h3>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<!-- Modal for expanded component view -->
+<div
+  id="componentModal"
+  class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-20 hidden p-12"
+>
+  <div
+    class="rounded-lg overflow-hidden w-full h-full flex flex-col md:flex-row shadow-2xl"
+  >
+    <!-- Component preview area (left side) -->
+    <div
+      class="flex-grow overflow-auto p-8 flex items-center justify-center bg-zinc-800 border-b md:border-b-0 md:border-r border-zinc-700 relative"
+      id="modalPreview"
+    >
+      <!-- Preview area - Adding a pattern background to help with white components -->
+      <div class="absolute inset-0 opacity-5 pointer-events-none">
+        <div
+          class="w-full h-full"
+          style="background-image: linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;"
+        >
+        </div>
+      </div>
+
+      <!-- The component will be cloned here -->
+    </div>
+
+    <!-- Sidebar (right side) -->
+    <div
+      class="w-full md:w-96 bg-zinc-900 p-6 overflow-auto border-l border-zinc-700 relative"
+    >
+      <!-- Close button with improved visibility -->
+      <div class="flex justify-end mb-6">
+        <button
+          id="closeModalBtn"
+          class="bg-zinc-800 hover:bg-zinc-700 text-white rounded-md px-3 py-2 flex items-center gap-2 transition-colors"
+        >
+          <span>Close</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <h2 id="modalTitle" class="text-2xl font-bold mb-4">Component Title</h2>
+      <div class="mb-6">
+        <span
+          id="modalType"
+          class="px-3 py-1 text-sm bg-blue-900 text-blue-200 rounded-full"
+          >Type</span
+        >
+      </div>
+      <div class="mb-8">
+        <h3 class="text-sm font-medium text-zinc-400 mb-2">Description</h3>
+        <p id="modalDescription" class="text-sm text-zinc-300">
+          Component description goes here.
+        </p>
+      </div>
+
+      <div class="mt-8 border-t border-zinc-800 pt-4">
+        <h3 class="text-sm font-medium text-zinc-400 mb-2">
+          Add to your project
+        </h3>
+        <div class="relative">
+          <code
+            id="copyCommand"
+            class="text-xs bg-zinc-900 border border-zinc-800 p-3 pr-10 rounded block overflow-x-auto text-zinc-300"
+            >altitude add component-name</code
+          >
+          <button
+            id="copyButton"
+            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+            title="Copy to clipboard"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div
+          id="copyNotification"
+          class="text-xs text-green-400 mt-2 opacity-0 transition-opacity"
+        >
+          Copied to clipboard!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ componentData: clientComponentData }}>
+  // Client-side JavaScript to handle the modal functionality
+  document.addEventListener("DOMContentLoaded", () => {
+    const componentCards = document.querySelectorAll(".component-card");
+    const modal = document.getElementById("componentModal");
+    const modalPreview = document.getElementById("modalPreview");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalType = document.getElementById("modalType");
+    const modalDescription = document.getElementById("modalDescription");
+    const copyCommand = document.getElementById("copyCommand");
+    const copyButton = document.getElementById("copyButton");
+    const copyNotification = document.getElementById("copyNotification");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    // Copy to clipboard functionality
+    copyButton.addEventListener("click", () => {
+      const command = copyCommand.textContent;
+      navigator.clipboard
+        .writeText(command)
+        .then(() => {
+          copyNotification.style.opacity = "1";
+          setTimeout(() => {
+            copyNotification.style.opacity = "0";
+          }, 2000);
+        })
+        .catch((err) => {
+          console.error("Could not copy text: ", err);
+        });
+    });
+
+    // Add click event to each component card
+    componentCards.forEach((card, index) => {
+      card.addEventListener("click", () => {
+        // Get component data
+        const component = componentData[index];
+
+        // Clone the component preview
+        const preview = card
+          .querySelector(".component-preview")
+          .cloneNode(true);
+        preview.classList.add("w-full", "h-full");
+
+        // Clear and append to modal
+        modalPreview.innerHTML = "";
+        modalPreview.appendChild(preview);
+
+        // Update sidebar content
+        modalTitle.textContent = component.title;
+        modalType.textContent = component.type;
+        modalDescription.textContent = component.description;
+        copyCommand.textContent = `altitude add ${component.name}`;
+
+        // Show modal
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+      });
+    });
+
+    // Close modal when clicking the close button
+    closeModalBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+      document.body.classList.remove("overflow-hidden");
+    });
+
+    // Close modal when clicking outside the modal content
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      }
+    });
+  });
+</script>
+
+<style>
+  .component-card {
+    cursor: pointer;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .component-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.3),
+      0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Media query for mobile responsive layout */
+  @media (max-width: 768px) {
+    #componentModal .flex-col {
+      max-height: 100vh;
+    }
+
+    #modalPreview {
+      max-height: 50vh;
+    }
+  }
+</style>

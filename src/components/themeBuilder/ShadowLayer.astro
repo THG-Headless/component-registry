@@ -1,0 +1,505 @@
+---
+import { themeColorArray, type Shadow } from "./utils/shadowUtils";
+
+interface Props {
+  shadow: Shadow;
+  index: number;
+  showRemoveButton: boolean;
+}
+
+const { shadow, index, showRemoveButton } = Astro.props;
+
+// Helper function to format shadow properties for display
+function formatShadowSummary(shadow: Shadow): string {
+  const insetText = shadow.isInset ? "inset " : "";
+  return `${insetText}${shadow.horizontalOffset}px ${shadow.verticalOffset}px ${shadow.blurRadius}px ${shadow.spreadRadius}px`;
+}
+---
+
+<div
+  class="bg-zinc-900 p-4 rounded border border-zinc-700 shadow-layer"
+  data-shadow-index={index}
+  data-shadow-visible="true"
+>
+  <div class="flex justify-between items-center mb-2">
+    <h4 class="text-md font-medium text-zinc-300">Layer {index + 1}</h4>
+    <div class="flex gap-2">
+      {
+        showRemoveButton && (
+          <button
+            type="button"
+            class="bg-red-600 hover:bg-red-700 text-white py-1 px-2 rounded text-xs"
+            data-remove-shadow={index}
+            aria-label="Remove shadow layer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )
+      }
+      <!-- Eye toggle button for visibility -->
+      <button
+        type="button"
+        class="toggle-visibility bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-2 rounded text-xs"
+        data-shadow-visibility={index}
+        aria-label="Toggle shadow visibility"
+      >
+        <!-- Eye icon (visible state) -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 eye-icon visible-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        <!-- Eye-slash icon (hidden state) -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-4 h-4 eye-icon hidden-icon hidden"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+          ></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="toggle-expand bg-zinc-700 hover:bg-zinc-600 text-white py-1 px-2 rounded text-xs flex items-center"
+        aria-label="Toggle layer details"
+      >
+        <span class="expand-icon">▼</span>
+        <span class="collapse-icon hidden">▲</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Simplified inline summary view -->
+  <div class="shadow-summary py-2">
+    <div class="flex justify-between items-center">
+      <!-- Left: Color and opacity -->
+      <div class="text-sm text-zinc-300">
+        <span class="align-middle"
+          >{shadow.colorName} ({Math.round(shadow.opacity * 100)}%)</span
+        >
+      </div>
+
+      <!-- Right: Shadow details -->
+      <div class="text-zinc-400 text-xs">
+        {formatShadowSummary(shadow)}
+      </div>
+    </div>
+  </div>
+
+  <!-- Expanded view (detailed controls) -->
+  <div
+    class="shadow-details hidden mt-3 pt-3 border-t border-zinc-700 space-y-4 shadow-controls"
+  >
+    <div>
+      <label class="block text-sm font-medium mb-2 text-zinc-300">
+        Horizontal Offset: <span data-h-value>{shadow.horizontalOffset}px</span>
+      </label>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-zinc-400">-50px</span>
+        <input
+          type="range"
+          min="-50"
+          max="50"
+          value={shadow.horizontalOffset}
+          class="w-full shadow-h-offset"
+          data-param="horizontalOffset"
+        />
+        <span class="text-xs text-zinc-400">50px</span>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-2 text-zinc-300">
+        Vertical Offset: <span data-v-value>{shadow.verticalOffset}px</span>
+      </label>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-zinc-400">-50px</span>
+        <input
+          type="range"
+          min="-50"
+          max="50"
+          value={shadow.verticalOffset}
+          class="w-full shadow-v-offset"
+          data-param="verticalOffset"
+        />
+        <span class="text-xs text-zinc-400">50px</span>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-2 text-zinc-300">
+        Blur Radius: <span data-blur-value>{shadow.blurRadius}px</span>
+      </label>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-zinc-400">0px</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={shadow.blurRadius}
+          class="w-full shadow-blur"
+          data-param="blurRadius"
+        />
+        <span class="text-xs text-zinc-400">100px</span>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-2 text-zinc-300">
+        Spread Radius: <span data-spread-value>{shadow.spreadRadius}px</span>
+      </label>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-zinc-400">-25px</span>
+        <input
+          type="range"
+          min="-25"
+          max="25"
+          value={shadow.spreadRadius}
+          class="w-full shadow-spread"
+          data-param="spreadRadius"
+        />
+        <span class="text-xs text-zinc-400">25px</span>
+      </div>
+    </div>
+
+    <!-- Color Selection UI -->
+    <div>
+      <label class="block text-sm font-medium mb-2 text-zinc-300">
+        Color
+      </label>
+      <div class="grid grid-cols-1 gap-3">
+        <!-- Color dropdown -->
+        <select
+          class="border border-zinc-700 rounded px-2 py-1 bg-zinc-800 text-zinc-300 shadow-color-select"
+          data-param="colorName"
+        >
+          {
+            themeColorArray.map((color) => (
+              <option
+                value={color.name}
+                selected={color.name === shadow.colorName}
+              >
+                {color.name.charAt(0).toUpperCase() + color.name.slice(1)}
+              </option>
+            ))
+          }
+        </select>
+
+        <!-- Opacity slider -->
+        <div>
+          <label class="block text-sm font-medium mb-1 text-zinc-300">
+            Opacity:
+          </label>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-zinc-400">0%</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={Math.round(shadow.opacity * 100)}
+              class="w-full shadow-opacity"
+              data-param="opacity"
+            />
+            <span class="text-xs text-zinc-400">100%</span>
+          </div>
+        </div>
+
+        <!-- Hidden color field for storing the actual computed rgba value -->
+        <input
+          type="hidden"
+          class="shadow-color"
+          value={shadow.color}
+          data-param="color"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label class="inline-flex items-center">
+        <div class="relative inline-block w-10 h-5 mr-3">
+          <input
+            type="checkbox"
+            class="shadow-inset sr-only"
+            checked={shadow.isInset}
+            data-param="isInset"
+          />
+          <span
+            class="toggle-bg absolute inset-0 bg-zinc-700 rounded-full transition-colors duration-200 ease-in-out"
+          ></span>
+          <span
+            class="toggle-dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out"
+          ></span>
+        </div>
+        <span class="ml-1 text-zinc-300">Inset Shadow</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add this function to the existing scripts in ShadowLayer.astro
+  function updateShadowSummary(layer: any) {
+    const horizontalOffsetEl = layer.querySelector(
+      '[data-param="horizontalOffset"]'
+    );
+    const verticalOffsetEl = layer.querySelector(
+      '[data-param="verticalOffset"]'
+    );
+    const blurRadiusEl = layer.querySelector('[data-param="blurRadius"]');
+    const spreadRadiusEl = layer.querySelector('[data-param="spreadRadius"]');
+    const isInsetEl = layer.querySelector('[data-param="isInset"]');
+    const colorNameEl = layer.querySelector('[data-param="colorName"]');
+    const opacityEl = layer.querySelector('[data-param="opacity"]');
+    const colorEl = layer.querySelector('[data-param="color"]');
+
+    if (
+      !horizontalOffsetEl ||
+      !verticalOffsetEl ||
+      !blurRadiusEl ||
+      !spreadRadiusEl ||
+      !isInsetEl
+    )
+      return;
+
+    const horizontalOffset = horizontalOffsetEl.value;
+    const verticalOffset = verticalOffsetEl.value;
+    const blurRadius = blurRadiusEl.value;
+    const spreadRadius = spreadRadiusEl.value;
+    const isInset = isInsetEl.checked;
+
+    // Update the shadow details text
+    const shadowDetailText = layer.querySelector(
+      ".shadow-summary .text-zinc-400"
+    );
+    if (shadowDetailText) {
+      shadowDetailText.textContent = `${isInset ? "inset " : ""}${horizontalOffset}px ${verticalOffset}px ${blurRadius}px ${spreadRadius}px`;
+    }
+
+    // Update color and opacity summary if those elements exist
+    if (colorNameEl && opacityEl) {
+      const colorName = colorNameEl.value;
+      const opacity = parseInt(opacityEl.value, 10);
+
+      const colorNameText = layer.querySelector(
+        ".shadow-summary .align-middle"
+      );
+      if (colorNameText) {
+        colorNameText.textContent = `${colorName} (${opacity}%)`;
+      }
+    }
+
+    // Update the color preview if it exists
+    if (colorEl) {
+      const color = colorEl.value;
+      const colorPreview = layer.querySelector(".shadow-summary .inline-block");
+      if (colorPreview) {
+        colorPreview.style.backgroundColor = color;
+      }
+    }
+  }
+
+  // Add event delegation for shadow parameter changes
+  document.addEventListener("input", (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+    if (
+      !e.target.hasAttribute("data-param") &&
+      !e.target.classList.contains("shadow-color-select") &&
+      !e.target.classList.contains("shadow-opacity")
+    )
+      return;
+
+    const layer = e.target.closest(".shadow-layer");
+    if (layer) {
+      updateShadowSummary(layer);
+    }
+  });
+
+  // Listen for changes on checkboxes (like inset)
+  document.addEventListener("change", (e) => {
+    if (!(e.target instanceof HTMLInputElement)) return;
+    if (e.target.dataset.param !== "isInset") return;
+
+    const layer = e.target.closest(".shadow-layer");
+    if (layer) {
+      updateShadowSummary(layer);
+    }
+  });
+</script>
+
+<style>
+  /* Custom styling for range inputs */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  /* Track styling */
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: #3f3f46; /* zinc-700 */
+    height: 0.4rem;
+    border-radius: 9999px;
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: #3f3f46; /* zinc-700 */
+    height: 0.4rem;
+    border-radius: 9999px;
+  }
+
+  /* Thumb styling */
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -4px;
+    background-color: #a855f7; /* purple-500 */
+    height: 1rem;
+    width: 1rem;
+    border-radius: 9999px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    border: none;
+    background-color: #a855f7; /* purple-500 */
+    height: 1rem;
+    width: 1rem;
+    border-radius: 9999px;
+  }
+
+  /* Hover state */
+  input[type="range"]:hover::-webkit-slider-thumb {
+    background-color: #9333ea; /* purple-600 */
+  }
+
+  input[type="range"]:hover::-moz-range-thumb {
+    background-color: #9333ea; /* purple-600 */
+  }
+
+  /* Focus state */
+  input[type="range"]:focus {
+    outline: none;
+  }
+
+  input[type="range"]:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4);
+  }
+
+  input[type="range"]:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Toggle switch styling */
+  .toggle-bg {
+    cursor: pointer;
+  }
+
+  input.shadow-inset:checked ~ .toggle-bg {
+    background-color: #a855f7; /* purple-500 */
+  }
+
+  input.shadow-inset:checked ~ .toggle-dot {
+    transform: translateX(20px);
+  }
+
+  input.shadow-inset:focus ~ .toggle-bg {
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.4);
+  }
+
+  .toggle-dot {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Toggle expand/collapse button */
+  .toggle-expand {
+    transition: all 0.2s ease;
+  }
+
+  .toggle-expand:hover {
+    background-color: #52525b;
+  }
+
+  /* Shadow layer transition */
+  .shadow-details {
+    transition: all 0.3s ease;
+  }
+
+  /* Shadow summary styles */
+  .shadow-summary {
+    transition: all 0.2s ease;
+  }
+
+  /* Visibility toggle button */
+  .toggle-visibility {
+    transition: all 0.2s ease;
+  }
+
+  .toggle-visibility:hover {
+    background-color: #52525b;
+  }
+
+  .shadow-layer[data-shadow-visible="false"] {
+    opacity: 0.6;
+  }
+
+  .shadow-layer[data-shadow-visible="false"] .shadow-summary,
+  .shadow-layer[data-shadow-visible="false"] .shadow-details {
+    position: relative;
+  }
+
+  /* Disabled controls styling */
+  .shadow-layer[data-shadow-visible="false"] .shadow-controls {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .shadow-layer[data-shadow-visible="false"] input[type="range"] {
+    filter: grayscale(1);
+    opacity: 0.7;
+  }
+
+  .shadow-layer[data-shadow-visible="false"] select,
+  .shadow-layer[data-shadow-visible="false"] input[type="checkbox"] {
+    cursor: not-allowed;
+  }
+
+  /* Add disabled styles for disabled inputs to ensure they render as disabled */
+  input[type="range"]:disabled {
+    filter: grayscale(1);
+    opacity: 0.7;
+  }
+
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed !important;
+    background-color: rgba(30, 30, 30, 0.3) !important;
+  }
+</style>

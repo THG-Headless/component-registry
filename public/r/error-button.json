@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "error-button",
+  "type": "registry:ui",
+  "title": "Error button",
+  "description": "A button error component",
+  "files": [
+    {
+      "path": "registry/error-button/error-button.tsx",
+      "content": "interface ButtonProps {\n  title?: string;\n}\n\nexport function Button({ title = \"hello world\" }: ButtonProps) {\n  return <button className=\"btn skin-error interactive\">{title}</button>;\n}\n",
+      "type": "registry:ui"
+    }
+  ]
+}

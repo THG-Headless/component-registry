@@ -1,0 +1,17 @@
+---
+interface Props {
+  shadow: string;
+}
+
+const { shadow } = Astro.props;
+---
+
+<div
+  class="p-8 flex justify-center bg-zinc-100 rounded border border-zinc-700 mb-6"
+>
+  <div
+    class="w-32 h-32 bg-zinc-300 shadow-preview rounded-xl"
+    style={`box-shadow: ${shadow};`}
+  >
+  </div>
+</div>

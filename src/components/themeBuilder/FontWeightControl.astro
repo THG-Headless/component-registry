@@ -1,0 +1,224 @@
+---
+interface Props {
+  weights: Record<string, number>;
+}
+
+const { weights } = Astro.props;
+---
+
+<div class="mb-6 border border-zinc-700 rounded p-5 bg-zinc-800">
+  <div class="flex">
+    <!-- Left side: Vertical slider with tick marks -->
+    <div class="w-16 relative">
+      <!-- Vertical line -->
+      <div class="absolute h-[500px] w-[2px] bg-zinc-700 left-4 rounded-full">
+      </div>
+
+      <!-- Tick marks at 100-step increments (0-1000) -->
+      {
+        Array.from({ length: 11 }).map((_, i) => (
+          <div class="relative">
+            <div
+              class={`absolute w-4 h-[2px] bg-zinc-600 left-4`}
+              style={`top: ${i * 50}px;`}
+            />
+            <div
+              class="absolute -left-6 text-xs text-zinc-400 text-right w-8"
+              style={`top: ${i * 50 - 6}px;`}
+            >
+              {(10 - i) * 100}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Right side: Font weight handles with centered alignment -->
+    <div id="font-weight-slider" class="flex-1 relative h-[500px]">
+      {
+        Object.entries(weights)
+          .sort((a, b) => b[1] - a[1])
+          .map(([weight, value]) => (
+            <div
+              class="absolute left-0 right-4 cursor-pointer select-none -translate-y-1/2"
+              style={`top: ${((1000 - value) / 1000) * 500}px;`}
+              data-weight-name={weight}
+              data-weight-value={value}
+            >
+              <div class="flex items-center">
+                <div class="h-6 w-6 rounded-full border-2 border-purple-500 bg-zinc-800 flex items-center justify-center mr-3 shadow-md font-weight-handle">
+                  <div class="h-2 w-2 rounded-full bg-purple-500" />
+                </div>
+                <span class="text-zinc-200" style={`font-weight: ${value};`}>
+                  {weight} ({value})
+                </span>
+              </div>
+            </div>
+          ))
+      }
+
+      <!-- Hidden inputs for form submission -->
+      {
+        Object.entries(weights).map(([weight, value]) => (
+          <input
+            type="hidden"
+            name={`weights.${weight}`}
+            value={value}
+            data-weight-input={weight}
+          />
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  function setupFontWeightSlider() {
+    const sliderContainer = document.getElementById("font-weight-slider");
+    if (!sliderContainer) return;
+
+    const weightHandles =
+      document.querySelectorAll<HTMLElement>("[data-weight-name]");
+    let activeHandle: HTMLElement | null = null;
+    let startY = 0;
+    let startTop = 0;
+    const containerHeight = 500;
+
+    // Store the original order and values
+    const weightOrder = Array.from(weightHandles)
+      .map((handle) => {
+        const name = handle.dataset.weightName;
+        const value = parseInt(handle.dataset.weightValue || "0");
+        return { name, value, element: handle };
+      })
+      .sort((a, b) => b.value - a.value);
+
+    // Make handles draggable
+    weightHandles.forEach((handle) => {
+      handle.addEventListener("mousedown", (e) => startDrag(e, handle));
+      handle.addEventListener("touchstart", (e) => startDrag(e, handle), {
+        passive: false,
+      });
+    });
+
+    function startDrag(e: MouseEvent | TouchEvent, element: HTMLElement) {
+      e.preventDefault();
+      activeHandle = element;
+
+      // Get starting position
+      if (e instanceof MouseEvent) {
+        startY = e.clientY;
+      } else {
+        startY = e.touches[0].clientY;
+      }
+
+      startTop = parseInt(window.getComputedStyle(activeHandle).top);
+
+      // Add event listeners for drag and end
+      document.addEventListener("mousemove", dragHandle);
+      document.addEventListener("touchmove", dragHandle, { passive: false });
+      document.addEventListener("mouseup", stopDrag);
+      document.addEventListener("touchend", stopDrag);
+
+      // Add active style
+      activeHandle
+        .querySelector(".font-weight-handle")
+        ?.classList.add("ring-2", "ring-purple-300");
+    }
+
+    function dragHandle(e: MouseEvent | TouchEvent) {
+      if (!activeHandle) return;
+
+      let currentY;
+      if (e instanceof MouseEvent) {
+        currentY = e.clientY;
+      } else {
+        currentY = e.touches[0].clientY;
+      }
+
+      const deltaY = currentY - startY;
+      let newTop = Math.max(0, Math.min(containerHeight, startTop + deltaY));
+
+      // Calculate new weight value (0-1000 range) with 10-unit steps
+      let newValue =
+        Math.round(
+          (((containerHeight - newTop) / containerHeight) * 1000) / 10
+        ) * 10;
+
+      // Find the current index of this weight
+      const handleName = activeHandle.dataset.weightName;
+      const currentIndex = weightOrder.findIndex(
+        (item) => item.name === handleName
+      );
+
+      // Respect the ordering - don't go past previous or next weight
+      if (
+        currentIndex > 0 &&
+        newValue > weightOrder[currentIndex - 1].value - 50
+      ) {
+        // Don't go higher than the weight above (minus min gap)
+        newValue = weightOrder[currentIndex - 1].value - 50;
+        newTop = containerHeight - (newValue / 1000) * containerHeight;
+      }
+
+      if (
+        currentIndex < weightOrder.length - 1 &&
+        newValue < weightOrder[currentIndex + 1].value + 50
+      ) {
+        // Don't go lower than the weight below (plus min gap)
+        newValue = weightOrder[currentIndex + 1].value + 50;
+        newTop = containerHeight - (newValue / 1000) * containerHeight;
+      }
+
+      // Update position and value to align center with value
+      activeHandle.style.top = `${newTop}px`;
+      activeHandle.dataset.weightValue = newValue.toString();
+
+      // Update the visible value and font weight
+      const label = activeHandle.querySelector("span");
+      if (label) {
+        label.textContent = `${handleName} (${newValue})`;
+        label.style.fontWeight = newValue.toString();
+      }
+
+      // Update the hidden input
+      const input = document.querySelector<HTMLInputElement>(
+        `[data-weight-input="${handleName}"]`
+      );
+      if (input) {
+        input.value = newValue.toString();
+      }
+
+      // Update the order array
+      weightOrder[currentIndex].value = newValue;
+
+      // Dispatch event
+      document.dispatchEvent(
+        new CustomEvent("fontWeightChanged", {
+          detail: { weight: handleName, value: newValue },
+        })
+      );
+    }
+
+    function stopDrag() {
+      if (!activeHandle) return;
+
+      // Remove active style
+      activeHandle
+        .querySelector(".font-weight-handle")
+        ?.classList.remove("ring-2", "ring-purple-300");
+
+      // Remove event listeners
+      document.removeEventListener("mousemove", dragHandle);
+      document.removeEventListener("touchmove", dragHandle);
+      document.removeEventListener("mouseup", stopDrag);
+      document.removeEventListener("touchend", stopDrag);
+
+      activeHandle = null;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupFontWeightSlider();
+  });
+</script>

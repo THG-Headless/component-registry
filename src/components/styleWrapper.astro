@@ -1,0 +1,202 @@
+---
+const initialThemeCSS = "/* Theme will be loaded from client-side */";
+const COMPONENTS_CSS_VERSION = "0.1.27";
+---
+
+<div class:list={["style-wrapper", "h-full w-full", "hidden"]}>
+  <iframe
+    style="width: 100%; height: 100%; "
+    srcdoc={`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@thg-altitude/standalone-components-css@${COMPONENTS_CSS_VERSION}">
+        <style id="theme-style" type="text/tailwindcss">
+            ${initialThemeCSS}
+        </style>
+        <style>
+          html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="h-full w-full skin">
+          <div class="h-fit w-fit">
+            ${(await Astro.slots.render("default")) || ""}
+          </div>
+        </div>
+      </body>
+    </html>
+  `}
+  >
+  </iframe>
+</div>
+
+<style>
+  .style-wrapper {
+    display: none;
+  }
+  .style-wrapper.loaded {
+    display: block;
+  }
+
+  .style-wrapper > iframe {
+    height: 100%;
+  }
+  .style-wrapper > iframe > html,
+  .style-wrapper > iframe > body {
+    height: 100%;
+  }
+</style>
+
+<script>
+  import { generateThemeCSS } from "./themeBuilder/utils/styleManager";
+  const COMPONENTS_CSS_VERSION = "0.2.0";
+
+  interface CustomWindow extends Window {
+    currentStyles?: any;
+  }
+
+  declare const window: CustomWindow;
+
+  const parseImports = async (cssUrl: string) => {
+    try {
+      const response = await fetch(cssUrl);
+      if (!response.ok) {
+        console.error(
+          `Failed to fetch CSS: ${response.status} ${response.statusText}`
+        );
+        return [];
+      }
+
+      const css = await response.text();
+
+      // Regular expression to find @import statements
+      const importRegex = /@import\s+['"](.+?)['"];/g;
+      const imports = [];
+      let match;
+
+      while ((match = importRegex.exec(css)) !== null) {
+        imports.push(match[1]);
+      }
+
+      return imports;
+    } catch (error) {
+      console.error("Error parsing CSS imports:", error);
+      return [];
+    }
+  };
+
+  const loadComponentCss = async (iframe: HTMLIFrameElement) => {
+    if (!iframe.contentDocument) {
+      return;
+    }
+
+    const baseUrl = `https://cdn.jsdelivr.net/npm/@thg-altitude/standalone-components-css@${COMPONENTS_CSS_VERSION}`;
+
+    try {
+      // Parse main CSS file for imports - use the base URL directly
+      const imports = await parseImports(baseUrl);
+
+      // Create link elements for each import
+      const linkElements = imports.map((importPath) => {
+        const fullPath = `${baseUrl}/src${importPath.substring(1)}`;
+        const linkElement = iframe.contentDocument?.createElement("link");
+        if (linkElement) {
+          linkElement.rel = "stylesheet";
+        }
+        if (linkElement) {
+          linkElement.href = fullPath;
+        }
+        return linkElement;
+      });
+
+      // Append all link elements to the iframe head
+      linkElements.forEach((linkElement) => {
+        if (iframe.contentDocument && linkElement) {
+          iframe.contentDocument.head.appendChild(linkElement);
+        }
+      });
+
+      // Wait for all stylesheets to load
+      await Promise.all(
+        linkElements.map(
+          (linkElement) =>
+            new Promise((resolve) => {
+              if (linkElement) {
+                linkElement.onload = resolve;
+              }
+              if (linkElement) {
+                linkElement.onerror = resolve;
+              }
+            })
+        )
+      );
+    } catch (error) {
+      console.error("Error loading component CSS:", error);
+    }
+  };
+
+  const updateIframeThemeCSS = async () => {
+    const iframes = document.querySelectorAll(".style-wrapper iframe");
+
+    for (const iframe of iframes) {
+      if ((iframe as HTMLIFrameElement).contentDocument) {
+        const themeStyleElement = (
+          iframe as HTMLIFrameElement
+        ).contentDocument?.getElementById("theme-style");
+        if (themeStyleElement) {
+          const css = generateThemeCSS();
+          themeStyleElement.textContent = `${css.replace(
+            /@theme/g,
+            "@theme static"
+          )} `;
+        }
+
+        await loadComponentCss(iframe as HTMLIFrameElement);
+        const styleWrapper = document.querySelector(".style-wrapper");
+        if (styleWrapper) {
+          styleWrapper.classList.add("loaded");
+          styleWrapper.classList.remove("hidden");
+        }
+      }
+    }
+  };
+
+  const checkForStyles = () => {
+    if (window.currentStyles) {
+      updateIframeThemeCSS();
+      return true;
+    }
+    return false;
+  };
+
+  const waitInterval = setInterval(() => {
+    if (checkForStyles()) {
+      clearInterval(waitInterval);
+
+      let previousValue = JSON.stringify(window.currentStyles);
+      setInterval(() => {
+        const currentValue = JSON.stringify(window.currentStyles);
+        if (currentValue !== previousValue) {
+          previousValue = currentValue;
+          updateIframeThemeCSS();
+        }
+      }, 200);
+    }
+  }, 100);
+
+  document.querySelectorAll(".style-wrapper iframe").forEach((iframe) => {
+    iframe.addEventListener("load", async () => {
+      if (window.currentStyles) {
+        await updateIframeThemeCSS();
+      } else {
+        await loadComponentCss(iframe as HTMLIFrameElement);
+      }
+    });
+  });
+</script>
