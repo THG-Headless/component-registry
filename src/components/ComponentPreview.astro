@@ -17,10 +17,18 @@ const { componentName } = Astro.props;
 <div
   class="flex items-center justify-center h-full p-4 relative z-10 w-full overflow-clip"
 >
-  {componentName == "button@react" && <Button />}
+  {
+    componentName == "button@react" && (
+      <Button className="skin-primary">Button</Button>
+    )
+  }
   {componentName == "dropdown@react" && <Dropdown client:load />}
-  {componentName == "progress-bar@react" && <ProgressBar />}
-  {componentName == "ratings@react" && <Ratings />}
+  {
+    componentName == "progress-bar@react" && (
+      <ProgressBar className="skin-success" />
+    )
+  }
+  {componentName == "ratings@react" && <Ratings className="skin-primary" />}
   {componentName == "text-area@react" && <TextArea />}
   {componentName == "text-input@react" && <TextInput />}
 </div>

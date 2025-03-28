@@ -7,7 +7,7 @@
   "files": [
     {
       "path": "registry/button/button.tsx",
-      "content": "interface ButtonProps {\n  title?: string;\n}\n\nexport function Button({ title = \"button\" }: ButtonProps) {\n  return (\n    <button className=\"skin-primary-emphasised interactive btn\">{title}</button>\n  );\n}\n",
+      "content": "interface ButtonProps {\n  children: React.ReactNode;\n  className?: string;\n}\n\nexport function Button({ children, className }: ButtonProps) {\n  return <button className={`interactive btn ${className}`}>{children}</button>;\n}\n",
       "type": "registry:ui"
     }
   ]

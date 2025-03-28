@@ -6,7 +6,7 @@ interface RatingsProps {
   iconCount?: number;
   iconSize?: string;
   icon?: string;
-  variant?: "primary" | "secondary" | "tertiary";
+  className?: string;
   ariaLabel?: string;
 }
 
@@ -16,7 +16,7 @@ export const Ratings: React.FC<RatingsProps> = ({
   iconCount = 5,
   iconSize = "24px",
   icon = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='2 2 20 20'%3E%3Cpath d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/%3E%3C/svg%3E\")",
-  variant = "secondary",
+  className,
   ariaLabel,
 }) => {
   // Calculate rating percentage (0-1 scale)
@@ -36,7 +36,7 @@ export const Ratings: React.FC<RatingsProps> = ({
 
   return (
     <div
-      className={`skin-${variant} rating wrapper`}
+      className={`${className} rating wrapper`}
       style={styles as React.CSSProperties}
       role="meter"
       aria-label={finalAriaLabel}
