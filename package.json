@@ -10,12 +10,14 @@
     "registry:build": "shadcn build"
   },
   "dependencies": {
-    "@astrojs/react": "^4.2.1",
+    "@astrojs/react": "^4.2.2",
     "@tailwindcss/vite": "^4.0.15",
     "@thg-altitude/standalone-components-css": "^0.2.1",
     "astro": "^5.5.4",
     "clsx": "^2.1.1",
     "color-space": "^2.3.1",
+    "preact": "^10.26.4",
+    "preact-render-to-string": "^6.5.13",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "shadcn": "2.4.0-canary.12",

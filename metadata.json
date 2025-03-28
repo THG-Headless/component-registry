@@ -1,0 +1,20 @@
+{
+  "button@react": {
+    "category": "Button"
+  },
+  "text-input@react": {
+    "category": "Input"
+  },
+  "text-area@react": {
+    "category": "Input"
+  },
+  "ratings@react": {
+    "category": "Data"
+  },
+  "progress-bar@react": {
+    "category": "Data"
+  },
+  "dropdown@react": {
+    "category": "Input"
+  }
+}

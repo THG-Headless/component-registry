@@ -1,0 +1,56 @@
+---
+import ComponentPreview from "./ComponentPreview.astro";
+
+interface Props {
+  component: {
+    name: string;
+    title: string;
+    category: string | null;
+  };
+}
+
+const { component } = Astro.props;
+---
+
+<a
+  href={`/preview/${component.name}`}
+  class="rounded-lg overflow-hidden component-card block"
+  data-component-name={component.name}
+>
+  <div class="relative w-full" style="padding-top: 66.67%;">
+    <div
+      class="absolute inset-0 skin flex items-center justify-center component-preview border border-zinc-700 pointer-events-none"
+    >
+      <ComponentPreview componentName={component.name} />
+    </div>
+  </div>
+
+  <div class="p-4 bg-zinc-800">
+    <div class="flex justify-between items-center">
+      <h3 class="text-md font-semibold">{component.title}</h3>
+      {
+        component.category && (
+          <span class="px-2 py-0.5 text-xs bg-blue-900 text-blue-200 rounded-full">
+            {component.category}
+          </span>
+        )
+      }
+    </div>
+  </div>
+</a>
+
+<style>
+  .component-card {
+    cursor: pointer;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .component-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.3),
+      0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+</style>

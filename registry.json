@@ -4,7 +4,7 @@
   "homepage": "https://acme.com",
   "items": [
     {
-      "name": "button",
+      "name": "button@react",
       "type": "registry:ui",
       "title": "Button",
       "description": "A simple button component",
@@ -16,26 +16,81 @@
       ]
     },
     {
-      "name": "card",
-      "type": "registry:component",
-      "title": "Card",
-      "description": "A simple card component",
-      "registryDependencies": ["button"],
+      "name": "text-input@react",
+      "type": "registry:ui",
+      "title": "Text Input",
+      "description": "A text input field with a label, helper text, and error message",
       "files": [
         {
-          "path": "registry/card/card.tsx",
-          "type": "registry:component"
+          "path": "registry/text-input/text-input.tsx",
+          "type": "registry:ui"
         }
       ]
     },
     {
-      "name": "error-button",
+      "name": "text-area@react",
       "type": "registry:ui",
-      "title": "Error button",
-      "description": "A button error component",
+      "title": "Text Area",
+      "description": "A text area field with a label, helper text, and error message",
       "files": [
         {
-          "path": "registry/error-button/error-button.tsx",
+          "path": "registry/text-area/text-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dropdown@react",
+      "type": "registry:ui",
+      "title": "Dropdown",
+      "description": "The dropdown component provides a flexible and accessible way to present a list of options to users.",
+      "files": [
+        {
+          "path": "registry/dropdown/dropdown.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/dropdown/focusManagement.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/dropdown/keyboardNavigation.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/dropdown/types.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/dropdown/useDropdown.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/dropdown/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "ratings@react",
+      "type": "registry:ui",
+      "title": "Ratings",
+      "description": "Responsively highlighted icons for rating",
+      "files": [
+        {
+          "path": "registry/ratings/ratings.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress-bar@react",
+      "type": "registry:ui",
+      "title": "Progress Bar",
+      "description": "A simple progress bar",
+      "files": [
+        {
+          "path": "registry/progress-bar/progress-bar.tsx",
           "type": "registry:ui"
         }
       ]

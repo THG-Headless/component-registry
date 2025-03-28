@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "button@react",
+  "type": "registry:ui",
+  "title": "Button",
+  "description": "A simple button component",
+  "files": [
+    {
+      "path": "registry/button/button.tsx",
+      "content": "interface ButtonProps {\n  title?: string;\n}\n\nexport function Button({ title = \"button\" }: ButtonProps) {\n  return (\n    <button className=\"skin-primary-emphasised interactive btn\">{title}</button>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ]
+}

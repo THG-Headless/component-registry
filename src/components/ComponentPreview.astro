@@ -1,66 +1,26 @@
 ---
+// Import all components explicitly
+import { Button } from "../../registry/button/button";
+import Dropdown from "../../registry/dropdown/dropdown";
+import ProgressBar from "../../registry/progress-bar/progress-bar";
+import { Ratings } from "../../registry/ratings/ratings";
+import { TextArea } from "../../registry/text-area/text-area";
+import { TextInput } from "../../registry/text-input/text-input";
+
 interface Props {
-  componentPath: string;
+  componentName: string;
 }
 
-const { componentPath } = Astro.props;
-
-// Normalize the path by removing @ and ensuring consistent format
-const normalizedPath: string = componentPath
-  .replace(/^@/, "") // Remove leading @ if present
-  .replace(/^\//, ""); // Remove leading / if present
-
-// Dynamic import variables
-let Component: any;
-let error: string | null = null;
-
-try {
-  // Build the import path relative to the project root
-  const importPath: string = `../../${normalizedPath}`;
-  const module = await import(importPath);
-
-  // Try to find the component export - check for default first, then named exports
-  Component = module.default;
-
-  if (!Component) {
-    // If no default export, try to find a named export based on the filename
-    const filename: string = normalizedPath.split("/").pop() || "";
-    const componentName: string = filename.split(".")[0];
-
-    // Try PascalCase (React convention)
-    const pascalCase: string = componentName
-      .split("-")
-      .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join("");
-
-    Component = module[pascalCase];
-
-    // If still not found, try other casing variants or just iterate through all exports
-    if (!Component) {
-      // Try other exports - get the first component-like export (function or class)
-      Component = Object.values(module).find(
-        (exp: any) => typeof exp === "function"
-      );
-    }
-  }
-} catch (e) {
-  error = `Error importing component: ${e instanceof Error ? e.message : String(e)}`;
-  console.error(`Error loading ${normalizedPath}:`, e);
-}
+const { componentName } = Astro.props;
 ---
 
-{
-  error ? (
-    <div class="flex items-center justify-center h-full bg-gray-100 text-red-400">
-      {error}
-    </div>
-  ) : Component ? (
-    <div class="flex items-center justify-center h-full p-4 relative z-10">
-      <Component />
-    </div>
-  ) : (
-    <div class="flex items-center justify-center h-full bg-gray-100 text-gray-400">
-      Component not found: {componentPath}
-    </div>
-  )
-}
+<div
+  class="flex items-center justify-center h-full p-4 relative z-10 w-full overflow-clip"
+>
+  {componentName == "button@react" && <Button />}
+  {componentName == "dropdown@react" && <Dropdown client:load />}
+  {componentName == "progress-bar@react" && <ProgressBar />}
+  {componentName == "ratings@react" && <Ratings />}
+  {componentName == "text-area@react" && <TextArea />}
+  {componentName == "text-input@react" && <TextInput />}
+</div>

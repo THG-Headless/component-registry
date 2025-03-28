@@ -1,0 +1,44 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PreviewPanel from "../../components/PreviewPanel.astro";
+import registryData from "../../../registry.json";
+import metadataDataRaw from "../../../metadata.json";
+
+// Define getStaticPaths to pre-generate all component pages
+export async function getStaticPaths() {
+  // Map all components from the registry to create paths
+  return registryData.items.map((item) => {
+    return {
+      params: { slug: item.name },
+      props: { item },
+    };
+  });
+}
+
+// Get the component from props (provided by getStaticPaths)
+const { item } = Astro.props;
+const componentName = item.name;
+
+// Get category from metadata if available
+const metadata = metadataDataRaw as Record<string, { category: string }>;
+const category = metadata[componentName]?.category || null;
+
+// Format the type for display
+const formattedType = item.type
+  .replace("registry:", "")
+  .replace(/^ui$/i, "UI")
+  .replace(/^\w/, (c) => c.toUpperCase());
+
+// Prepare the component data for the PreviewPanel
+const componentData = {
+  name: item.name,
+  title: item.title,
+  description: item.description,
+  type: formattedType,
+  category: category,
+};
+---
+
+<Layout title={`${item.title} | Component Preview`}>
+  <PreviewPanel component={componentData} />
+</Layout>
