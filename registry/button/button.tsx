@@ -1,9 +1,8 @@
 interface ButtonProps {
-  title?: string;
+  children: React.ReactNode;
+  className?: string;
 }
 
-export function Button({ title = "button" }: ButtonProps) {
-  return (
-    <button className="skin-primary-emphasised interactive btn">{title}</button>
-  );
+export function Button({ children, className }: ButtonProps) {
+  return <button className={`interactive btn ${className}`}>{children}</button>;
 }

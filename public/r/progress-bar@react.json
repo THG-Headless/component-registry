@@ -7,7 +7,7 @@
   "files": [
     {
       "path": "registry/progress-bar/progress-bar.tsx",
-      "content": "import React from \"react\";\n\ninterface ProgressBarProps {\n  value?: number;\n  maxValue?: number;\n  variant?: \"primary\" | \"secondary\" | \"tertiary\";\n  labelId?: string;\n  label?: string;\n  showLabel?: boolean;\n}\n\nexport const ProgressBar: React.FC<ProgressBarProps> = ({\n  value = 50,\n  maxValue = 100,\n  variant = \"primary\",\n  label = \"Progress\",\n}) => {\n  const progressValue = Math.max(0, Math.min(value / maxValue, 1));\n\n  return (\n    <div\n      className={`skin-${variant} progress`}\n      style={{ \"--progress-value\": progressValue } as React.CSSProperties}\n      role=\"progressbar\"\n      aria-valuemin={0}\n      aria-valuemax={maxValue}\n      aria-valuenow={value}\n      aria-label={label}\n    ></div>\n  );\n};\n\nexport default ProgressBar;\n",
+      "content": "import React from \"react\";\n\ninterface ProgressBarProps {\n  value?: number;\n  maxValue?: number;\n  label?: string;\n  className?: string;\n}\n\nexport const ProgressBar: React.FC<ProgressBarProps> = ({\n  value = 50,\n  maxValue = 100,\n  label = \"Progress\",\n  className,\n}) => {\n  const progressValue = Math.max(0, Math.min(value / maxValue, 1));\n\n  return (\n    <div\n      className={`progress ${className}`}\n      style={{ \"--progress-value\": progressValue } as React.CSSProperties}\n      role=\"progressbar\"\n      aria-valuemin={0}\n      aria-valuemax={maxValue}\n      aria-valuenow={value}\n      aria-label={label}\n    ></div>\n  );\n};\n\nexport default ProgressBar;\n",
       "type": "registry:ui"
     }
   ]
