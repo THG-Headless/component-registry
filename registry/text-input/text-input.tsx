@@ -1,55 +1,102 @@
-import React, { useState } from "react";
-import type { ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
+import type { ChangeEvent, FocusEvent } from "react";
+import { useFormField } from "../form/form";
+import type { FieldValidator } from "../form/types";
 
 interface TextInputProps {
   id?: string;
   name?: string;
   label?: string;
-  status?: string;
+  required?: boolean;
+  requiredText?: string;
+  optionalText?: string;
   placeholder?: string;
   helperText?: string;
   errorMessage?: string;
   isInvalid?: boolean;
-  disabled?: boolean; // Added disabled prop
+  disabled?: boolean;
   autocomplete?: string;
   spellcheck?: boolean;
   value?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   onClear?: () => void;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  validator?: FieldValidator;
 }
 
 export const TextInput: React.FC<TextInputProps> = ({
   id = "basic-input",
   name = "basic-input",
   label = "Label",
-  status = "(Optional status)",
+  required = false,
+  requiredText = "(Required)",
+  optionalText = "(Optional)",
   placeholder = "Placeholder text",
   helperText = "Helper text",
   errorMessage = "Error message",
   isInvalid = false,
-  disabled = false, // Added disabled with default false
+  disabled = false,
   autocomplete = "off",
   spellcheck = true,
-
   value,
   onChange,
+  onBlur,
   onClear,
+  validateOnChange = false,
+  validateOnBlur = true,
+  validator,
 }) => {
-  const [inputValue, setInputValue] = useState(value || "");
+  const field = useFormField(name, validator);
+
+  const isRequired = field.isRequired || required;
+
+  const [inputValue, setInputValue] = useState(value || field.value || "");
+  const [touched, setTouched] = useState(field.touched);
+
+  useEffect(() => {
+    if (value !== undefined && value !== inputValue) {
+      setInputValue(value);
+    }
+  }, [value, inputValue]);
+
+  useEffect(() => {
+    if (field.value !== undefined && !inputValue) {
+      setInputValue(field.value);
+    }
+  }, []);
+
+  useEffect(() => {
+    setTouched(field.touched);
+  }, [field.touched]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    field.setValue(newValue);
     onChange && onChange(e);
+  };
+
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    setTouched(true);
+    field.setTouched(true);
+    onBlur && onBlur(e);
   };
 
   const handleClear = () => {
     setInputValue("");
+    field.setValue("");
     onClear && onClear();
   };
 
   const helperId = `${id}-helper`;
   const statusId = `${id}-status`;
   const messageId = `${id}-message`;
+
+  const fieldIsInvalid = isInvalid || !!field.error;
+  const showError = fieldIsInvalid && (touched || field.isSubmitting);
+  const displayErrorMessage = field.error || errorMessage;
 
   return (
     <div className="skin-form input-wrapper w-full wrapper group">
@@ -61,7 +108,7 @@ export const TextInput: React.FC<TextInputProps> = ({
           className="input-status text-sm font-light soft"
           aria-hidden="true"
         >
-          {status}
+          {isRequired ? requiredText : optionalText}
         </span>
       </div>
       <div className="input-field-wrapper">
@@ -71,42 +118,44 @@ export const TextInput: React.FC<TextInputProps> = ({
           id={id}
           name={name}
           placeholder={placeholder}
-          aria-invalid={isInvalid ? "true" : "false"}
+          aria-invalid={showError ? "true" : "false"}
           aria-describedby={`${helperId} ${statusId}`}
           aria-errormessage={messageId}
           autoComplete={autocomplete}
           spellCheck={spellcheck}
           value={inputValue}
           onChange={handleChange}
-          disabled={disabled} // Added disabled attribute
+          onBlur={handleBlur}
+          disabled={disabled}
+          required={isRequired}
         />
-        {inputValue &&
-          !disabled && ( // Only show clear button if not disabled
-            <button
-              className="skin-control input-clear"
-              aria-label="Clear input"
-              onClick={handleClear}
+        {inputValue && !disabled && (
+          <button
+            className="skin-control input-clear"
+            aria-label="Clear input"
+            onClick={handleClear}
+            type="button"
+          >
+            <svg
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+              focusable="false"
             >
-              <svg
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          )}
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        )}
       </div>
       <div className="input-helper-wrapper">
         <p className="input-helper text-sm soft" id={helperId}>
           {helperText}
         </p>
-        {isInvalid && (
+        {showError && (
           <div className="skin-error input-error-content">
             <svg
               className="input-error-icon"
@@ -126,7 +175,7 @@ export const TextInput: React.FC<TextInputProps> = ({
               id={messageId}
               role="alert"
             >
-              {errorMessage}
+              {displayErrorMessage}
             </p>
           </div>
         )}

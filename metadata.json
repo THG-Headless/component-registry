@@ -16,5 +16,8 @@
   },
   "dropdown@react": {
     "category": "Input"
+  },
+  "form@react": {
+    "category": "Form"
   }
 }

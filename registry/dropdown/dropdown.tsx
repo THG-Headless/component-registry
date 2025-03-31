@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { DropdownProps } from "./types";
 import { useDropdown } from "./useDropdown";
+import { useFormField } from "../form/form";
 
 const Dropdown: React.FC<DropdownProps> = (props) => {
   const {
@@ -23,20 +24,39 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
     disabled = false,
     enableSearch = true,
     required = true,
+    requiredText = "(Required)",
+    optionalText = "(Optional)",
     noOptionsMessage = "No options available",
     searchPlaceholder = "Search...",
     helperText = "Helper text",
+    name,
+    className = "",
+    value,
+    onChange,
+    validateOnChange = false,
+    validateOnBlur = true,
+    validator,
   } = props;
 
-  // Create a new props object with our defaults
+  const field = useFormField(name || "", validator);
+
+  // If validator.isRequired() returns true, override the required prop
+  const isRequired = field.isRequired || required;
+
   const propsWithDefaults = {
     ...props,
     options: props.options || options,
+    initialValue: value || field.value,
   };
 
-  // Use the custom hook to manage state and behavior
-  const { state, handlers, refs, dropdownIds, filteredOptions } =
-    useDropdown(propsWithDefaults);
+  const {
+    state,
+    handlers,
+    refs,
+    dropdownIds,
+    filteredOptions,
+    setSelectedValue,
+  } = useDropdown(propsWithDefaults);
 
   const { isOpen, selectedValue, activeDescendant } = state;
 
@@ -53,12 +73,48 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
     dropdownErrorId,
   } = dropdownIds;
 
+  useEffect(() => {
+    if (value !== undefined && value !== selectedValue) {
+      setSelectedValue(value);
+    } else if (field.value && field.value !== selectedValue) {
+      setSelectedValue(field.value);
+    }
+  }, [value, field.value, selectedValue, setSelectedValue]);
+
+  useEffect(() => {
+    if (selectedValue) {
+      field.setValue(selectedValue);
+      field.setTouched(true);
+    }
+  }, [field, selectedValue]);
+
+  const handleToggleDropdown = (e: React.MouseEvent) => {
+    toggleDropdown(e);
+    field.setTouched(true);
+  };
+
+  const handleOptionSelection = (option: string, e: React.MouseEvent) => {
+    handleOptionClick(option, e);
+
+    field.setValue(option);
+    field.setTouched(true);
+
+    if (onChange) {
+      onChange(option);
+    }
+  };
+
+  const fieldIsInvalid = error || !!field.error;
+  const showError =
+    fieldIsInvalid && (error || field.touched || field.isSubmitting);
+  const displayErrorMessage = field.error || errorMessage;
+
   return (
     <div
       ref={dropdownRef}
       className={`skin-form dropdown-wrapper group wrapper ${
         isOpen ? "dropdown-open" : ""
-      } ${error ? "dropdown-error" : ""}`}
+      } ${showError ? "dropdown-error" : ""} ${className}`}
     >
       <label
         htmlFor={enableSearch ? dropdownSearchId : dropdownTriggerId}
@@ -66,11 +122,15 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
         className="dropdown-label text-body font-semi-bold"
       >
         {label}
-        {required && <span className="sr-only"> (required)</span>}
+        <span
+          className="input-status text-sm font-light soft ml-2"
+          aria-hidden="true"
+        >
+          {isRequired ? requiredText : optionalText}
+        </span>
       </label>
       <div className="dropdown">
         {enableSearch ? (
-          // When search is enabled, the input becomes the combobox
           <div
             className="wrapper"
             role="combobox"
@@ -86,10 +146,10 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               aria-expanded={isOpen}
               aria-controls={dropdownListId}
               aria-labelledby={`${dropdownLabelId} selected-value-${dropdownTriggerId}`}
-              onClick={toggleDropdown}
+              onClick={handleToggleDropdown}
               type="button"
               disabled={disabled}
-              aria-describedby={error ? dropdownErrorId : dropdownHelperId}
+              aria-describedby={showError ? dropdownErrorId : dropdownHelperId}
             >
               <div className="dropdown-summary-content">
                 <svg
@@ -128,7 +188,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
             </button>
           </div>
         ) : (
-          // When search is disabled, the button becomes the combobox
           <div
             className="wrapper"
             role="combobox"
@@ -146,12 +205,12 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               aria-controls={dropdownListId}
               aria-labelledby={dropdownLabelId}
               aria-autocomplete="none"
-              aria-describedby={error ? dropdownErrorId : dropdownHelperId}
-              onClick={toggleDropdown}
+              aria-describedby={showError ? dropdownErrorId : dropdownHelperId}
+              onClick={handleToggleDropdown}
               type="button"
               disabled={disabled}
-              aria-required={required}
-              aria-invalid={error}
+              aria-required={isRequired}
+              aria-invalid={showError}
             >
               <div className="dropdown-summary-content">
                 <svg
@@ -243,12 +302,12 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
                       : ""
                   }`}
                   aria-selected={selectedValue === option}
-                  onClick={(e) => handleOptionClick(option, e)}
+                  onClick={(e) => handleOptionSelection(option, e)}
                   tabIndex={-1} // Make focusable but not in tab order
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      handleOptionClick(
+                      handleOptionSelection(
                         option,
                         e as unknown as React.MouseEvent
                       );
@@ -275,7 +334,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
         <p className="dropdown-helper text-sm soft" id={dropdownHelperId}>
           {helperText}
         </p>
-        {error && (
+        {showError && (
           <div className="skin-error dropdown-error-content">
             <svg
               className="dropdown-icon"
@@ -295,11 +354,20 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               id={dropdownErrorId}
               role="alert"
             >
-              {errorMessage}
+              {displayErrorMessage}
             </p>
           </div>
         )}
       </div>
+
+      {name && (
+        <input
+          type="hidden"
+          name={name}
+          value={selectedValue || ""}
+          required={isRequired}
+        />
+      )}
     </div>
   );
 };

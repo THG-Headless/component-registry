@@ -1,16 +1,20 @@
-import React, { useState } from "react";
-import type { ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
+import type { ChangeEvent, FocusEvent } from "react";
+import { useFormField } from "../form/form";
+import type { FieldValidator } from "../form/types";
 
 interface TextAreaProps {
   id?: string;
   name?: string;
   label?: string;
-  status?: string;
+  required?: boolean;
+  requiredText?: string;
+  optionalText?: string;
   placeholder?: string;
   helperText?: string;
   errorMessage?: string;
   isInvalid?: boolean;
-  disabled?: boolean; // Added disabled prop
+  disabled?: boolean;
   autocomplete?: string;
   spellcheck?: boolean;
   value?: string;
@@ -18,13 +22,19 @@ interface TextAreaProps {
   maxLength?: number;
   rows?: number;
   onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (e: FocusEvent<HTMLTextAreaElement>) => void;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  validator?: FieldValidator;
 }
 
 export const TextArea: React.FC<TextAreaProps> = ({
   id = "basic-textarea",
   name = "basic-textarea",
   label = "Label",
-  status = "(Optional status)",
+  required = false,
+  requiredText = "(Required)",
+  optionalText = "(Optional)",
   placeholder = "Placeholder text",
   helperText = "Helper text",
   errorMessage = "Error message",
@@ -37,17 +47,56 @@ export const TextArea: React.FC<TextAreaProps> = ({
   maxLength = 500,
   rows = 3,
   onChange,
+  onBlur,
+  validator,
 }) => {
-  const [inputValue, setInputValue] = useState(value);
+  // Use the form field hook with validator
+  const field = useFormField(name, validator);
+
+  // If validator.isRequired() returns true, override the required prop
+  const isRequired = field.isRequired || required;
+
+  const [inputValue, setInputValue] = useState(value || field.value || "");
+  const [touched, setTouched] = useState(field.touched);
+
+  useEffect(() => {
+    // Only update inputValue if the external value prop changes
+    if (value !== undefined && value !== inputValue) {
+      setInputValue(value);
+    }
+  }, [value, inputValue]);
+
+  // Only update from field.value on initial mount
+  useEffect(() => {
+    if (field.value !== undefined && !inputValue) {
+      setInputValue(field.value);
+    }
+  }, []);
+
+  useEffect(() => {
+    setTouched(field.touched);
+  }, [field.touched]);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    field.setValue(newValue);
     onChange && onChange(e);
+  };
+
+  const handleBlur = (e: FocusEvent<HTMLTextAreaElement>) => {
+    setTouched(true);
+    field.setTouched(true);
+    onBlur && onBlur(e);
   };
 
   const helperId = `${id}-helper`;
   const charLimitId = `${id}-char-limit`;
   const errorId = `${id}-error`;
+
+  const fieldIsInvalid = isInvalid || !!field.error;
+  const showError = fieldIsInvalid && (touched || field.isSubmitting);
+  const displayErrorMessage = field.error || errorMessage;
 
   return (
     <div className="skin-form input-wrapper w-full wrapper group">
@@ -59,7 +108,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
           className="input-status text-sm font-light soft"
           aria-hidden="true"
         >
-          {status}
+          {isRequired ? requiredText : optionalText}
         </span>
       </div>
       <div className="input-field-wrapper">
@@ -68,7 +117,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
           id={id}
           name={name}
           placeholder={placeholder}
-          aria-invalid={isInvalid ? "true" : "false"}
+          aria-invalid={showError ? "true" : "false"}
           aria-describedby={`${helperId} ${charLimitId}`}
           aria-errormessage={errorId}
           autoComplete={autocomplete}
@@ -78,7 +127,9 @@ export const TextArea: React.FC<TextAreaProps> = ({
           rows={rows}
           value={inputValue}
           onChange={handleChange}
+          onBlur={handleBlur}
           disabled={disabled}
+          required={isRequired}
         ></textarea>
         <svg className="resize-handle" viewBox="0 0 16 16" fill="currentColor">
           <path
@@ -97,12 +148,12 @@ export const TextArea: React.FC<TextAreaProps> = ({
       </div>
       <div className="input-helper-wrapper">
         <div className="input-helper-content">
-          {!isInvalid && (
+          {!showError && (
             <p className="input-helper text-sm soft" id={helperId}>
               {helperText}
             </p>
           )}
-          {isInvalid && (
+          {showError && (
             <div className="skin-error input-error-content">
               <svg
                 className="input-error-icon"
@@ -122,7 +173,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
                 id={errorId}
                 role="alert"
               >
-                {errorMessage}
+                {displayErrorMessage}
               </p>
             </div>
           )}

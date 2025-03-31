@@ -1,3 +1,5 @@
+import type { FieldValidator } from "../form/types";
+
 export interface DropdownProps {
   label?: string;
   options?: string[];
@@ -7,10 +9,20 @@ export interface DropdownProps {
   disabled?: boolean;
   enableSearch?: boolean;
   id?: string;
+  name?: string;
   required?: boolean;
+  requiredText?: string;
+  optionalText?: string;
   noOptionsMessage?: string;
   searchPlaceholder?: string;
   helperText?: string;
+  className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  initialValue?: string;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  validator?: FieldValidator;
 }
 
 export interface DropdownState {

@@ -6,6 +6,7 @@ import ProgressBar from "../../registry/progress-bar/progress-bar";
 import { Ratings } from "../../registry/ratings/ratings";
 import { TextArea } from "../../registry/text-area/text-area";
 import { TextInput } from "../../registry/text-input/text-input";
+import SampleForm from "../../registry/form/sampleForm";
 
 interface Props {
   componentName: string;
@@ -31,4 +32,5 @@ const { componentName } = Astro.props;
   {componentName == "ratings@react" && <Ratings className="skin-primary" />}
   {componentName == "text-area@react" && <TextArea />}
   {componentName == "text-input@react" && <TextInput />}
+  {componentName == "form@react" && <SampleForm client:load />}
 </div>
