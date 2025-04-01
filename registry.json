@@ -99,31 +99,11 @@
       "name": "form@react",
       "type": "registry:component",
       "title": "Form",
-      "description": "An enhanced form component with context API, validation, accessibility features, and state management",
+      "description": "An form wrapper, designed to work with native HTML forms.",
       "files": [
         {
           "path": "registry/form/form.tsx",
-          "type": "registry:ui"
-        },
-        {
-          "path": "registry/form/FormContext.tsx",
-          "type": "registry:hook"
-        },
-        {
-          "path": "registry/form/FormField.tsx",
-          "type": "registry:hook"
-        },
-        {
-          "path": "registry/form/FormSubmission.tsx",
-          "type": "registry:lib"
-        },
-        {
-          "path": "registry/form/FormValidation.tsx",
-          "type": "registry:lib"
-        },
-        {
-          "path": "registry/form/types.ts",
-          "type": "registry:lib"
+          "type": "registry:component"
         }
       ]
     }

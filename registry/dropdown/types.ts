@@ -1,26 +1,17 @@
-import type { FieldValidator } from "../form/types";
+import type { SelectHTMLAttributes } from "react";
 
-export interface DropdownProps {
+export interface DropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   options?: string[];
   placeholder?: string;
   error?: boolean;
   errorMessage?: string;
-  disabled?: boolean;
   enableSearch?: boolean;
-  id?: string;
-  name?: string;
-  required?: boolean;
-  requiredText?: string;
-  optionalText?: string;
   noOptionsMessage?: string;
   searchPlaceholder?: string;
   helperText?: string;
   className?: string;
-  value?: string;
-  onChange?: (value: string) => void;
   initialValue?: string;
-  validator?: FieldValidator;
 }
 
 export interface DropdownState {

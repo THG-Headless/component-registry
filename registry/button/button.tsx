@@ -1,19 +1,18 @@
 import React from "react";
+import type { ButtonHTMLAttributes } from "react";
 
-interface ButtonProps {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
-  type?: "button" | "submit" | "reset";
-  disabled?: boolean;
 }
 
 export function Button({
   children,
   className = "",
-  onClick,
   type = "button",
   disabled = false,
+  onClick,
+  ...restProps
 }: ButtonProps) {
   return (
     <button
@@ -21,6 +20,7 @@ export function Button({
       onClick={onClick}
       type={type}
       disabled={disabled}
+      {...restProps}
     >
       {children}
     </button>

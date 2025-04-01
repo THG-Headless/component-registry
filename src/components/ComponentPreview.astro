@@ -4,8 +4,8 @@ import { Button } from "../../registry/button/button";
 import Dropdown from "../../registry/dropdown/dropdown";
 import ProgressBar from "../../registry/progress-bar/progress-bar";
 import { Ratings } from "../../registry/ratings/ratings";
-import { TextArea } from "../../registry/text-area/text-area";
-import { TextInput } from "../../registry/text-input/text-input";
+import TextArea from "../../registry/text-area/text-area";
+import TextInput from "../../registry/text-input/text-input";
 import SampleForm from "../../registry/form/sampleForm";
 
 interface Props {
@@ -23,14 +23,57 @@ const { componentName } = Astro.props;
       <Button className="skin-primary">Button</Button>
     )
   }
-  {componentName == "dropdown@react" && <Dropdown client:load />}
+  {
+    componentName == "dropdown@react" && (
+      <Dropdown
+        client:load
+        label="Select an option"
+        placeholder="Choose an option"
+        helperText="Select from the list"
+        errorMessage="An option is required"
+        noOptionsMessage="No matching options"
+        searchPlaceholder="Search options..."
+        enableSearch={true}
+        options={[
+          "Option 1",
+          "Option 2",
+          "Option 3",
+          "Option 4",
+          "Option 5",
+          "Option 6",
+          "Option 7",
+          "Option 8",
+          "Option 9",
+          "Option 10",
+        ]}
+      />
+    )
+  }
   {
     componentName == "progress-bar@react" && (
       <ProgressBar className="skin-success" />
     )
   }
   {componentName == "ratings@react" && <Ratings className="skin-primary" />}
-  {componentName == "text-area@react" && <TextArea />}
-  {componentName == "text-input@react" && <TextInput />}
+  {
+    componentName == "text-area@react" && (
+      <TextArea
+        label="Feedback"
+        placeholder="Enter your message here"
+        helperText="Please provide your feedback"
+        errorMessage="Feedback is required"
+      />
+    )
+  }
+  {
+    componentName == "text-input@react" && (
+      <TextInput
+        label="Username"
+        placeholder="Enter your username"
+        helperText="Enter a unique username"
+        errorMessage="Username is required"
+      />
+    )
+  }
   {componentName == "form@react" && <SampleForm client:load />}
 </div>
