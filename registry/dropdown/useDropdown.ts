@@ -99,6 +99,15 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     dropdownIds,
   ]);
 
+  const onClickOutsideRef = useRef<((wasOpen: boolean) => void) | null>(null);
+
+  const setOnClickOutside = useCallback(
+    (callback: (wasOpen: boolean) => void) => {
+      onClickOutsideRef.current = callback;
+    },
+    []
+  );
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -106,7 +115,12 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
         !dropdownRef.current.contains(event.target as Node) &&
         isOpen
       ) {
+        const wasOpen = isOpen;
         setIsOpen(false);
+
+        if (onClickOutsideRef.current) {
+          onClickOutsideRef.current(wasOpen);
+        }
       }
     };
 
@@ -117,6 +131,10 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     };
   }, [isOpen]);
 
+  const isClosingDropdown = (currentIsOpen: boolean, newIsOpen: boolean) => {
+    return currentIsOpen && !newIsOpen;
+  };
+
   // Event handlers
   const toggleDropdown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -124,8 +142,13 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
 
     if (!disabled) {
       setOpenedByKeyboard(false);
-      setIsOpen(!isOpen);
+      const newIsOpen = !isOpen;
+      setIsOpen(newIsOpen);
+
+      return isClosingDropdown(isOpen, newIsOpen);
     }
+
+    return false;
   };
 
   const handleOptionClick = (option: string, e: React.MouseEvent) => {
@@ -198,6 +221,7 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     handleOptionClick,
     handleSearchChange,
     handleKeyDown,
+    setOnClickOutside,
   };
 
   return {

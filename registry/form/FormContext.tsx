@@ -10,6 +10,11 @@ import { validateField, validateAllFields } from "./FormValidation";
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
 
+export function useSafeFormContext() {
+  const context = useContext(FormContext);
+  return context; // Returns undefined if not in a FormProvider
+}
+
 export function useFormContext() {
   const context = useContext(FormContext);
   if (!context) {
@@ -82,7 +87,7 @@ export function FormProvider({
     (name: string, validator: FieldValidator) => {
       setValidators((prev) => ({ ...prev, [name]: validator }));
     },
-    []
+    [setValidators]
   );
 
   const validateFieldByName = useCallback(

@@ -8,6 +8,7 @@ import type { FormEvent } from "react";
 import { FormProvider, useFormContext } from "./FormContext";
 import { handleFormSubmission } from "./FormSubmission";
 import type { FormProps, FormRef, ErrorSummaryProps } from "./types";
+import ErrorBoundary from "../utils/ErrorBoundary";
 
 const ErrorSummary: React.FC<ErrorSummaryProps> = ({
   errors,
@@ -202,11 +203,27 @@ const FormComponent = forwardRef<
 const Form = forwardRef<FormRef, FormProps>(
   ({ children, initialValues = {}, onReset, ...props }, ref) => {
     return (
-      <FormProvider initialValues={initialValues} onReset={onReset}>
-        <FormComponent ref={ref} {...props}>
-          {children}
-        </FormComponent>
-      </FormProvider>
+      <ErrorBoundary
+        fallback={
+          <div className="form-error-fallback" role="alert">
+            <h3>There was an error rendering this form.</h3>
+            <p>
+              Please try refreshing the page or contact support if the issue
+              persists.
+            </p>
+          </div>
+        }
+        onError={(error) => {
+          console.error("Form error caught by ErrorBoundary:", error);
+          // You could add error reporting here
+        }}
+      >
+        <FormProvider initialValues={initialValues} onReset={onReset}>
+          <FormComponent ref={ref} {...props}>
+            {children}
+          </FormComponent>
+        </FormProvider>
+      </ErrorBoundary>
     );
   }
 );
