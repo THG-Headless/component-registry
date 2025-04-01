@@ -7,7 +7,7 @@
   "files": [
     {
       "path": "registry/button/button.tsx",
-      "content": "interface ButtonProps {\n  children: React.ReactNode;\n  className?: string;\n}\n\nexport function Button({ children, className }: ButtonProps) {\n  return <button className={`interactive btn ${className}`}>{children}</button>;\n}\n",
+      "content": "import React from 'react';\n\ninterface ButtonProps {\n  children: React.ReactNode;\n  className?: string;\n  onClick?: React.MouseEventHandler<HTMLButtonElement>;\n}\n\nexport function Button({ children, className = \"\", onClick }: ButtonProps) {\n  return <button onClick={onClick} className={`interactive btn ${className}`}>{children}</button>;\n}",
       "type": "registry:ui"
     }
   ]

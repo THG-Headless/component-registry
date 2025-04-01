@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "review-overview@react",
+  "type": "registry:ui",
+  "title": "Review Overview",
+  "description": "Overview of reviews with rating stars, review count and a score summary",
+  "registryDependencies": [
+    "ratings@react",
+    "progress-bar@react"
+  ],
+  "files": [
+    {
+      "path": "registry/review-overview/review-overview.tsx",
+      "content": "import React from \"react\";\nimport Ratings from \"../ratings/ratings\";\nimport ProgressBar from \"../progress-bar/progress-bar\";\n\ninterface RatingScore {\n    [key: number]: number;\n}\n\ninterface ReviewOverviewProps {\n    averageRating?: number;\n    reviewCount?: number;\n    maxRating?: number;\n    minRating?: number;\n    ratings?: RatingScore;\n}\n\nexport const ReviewOverview: React.FC<ReviewOverviewProps> = ({ averageRating = 2.5, reviewCount = 1, maxRating = 5, minRating = 1, ratings = {}}) => {\n    const getTotalRatings = () => {\n        return Object.values(ratings).reduce((total, count) => total + count, 0);\n    };\n\n    const totalRatings = getTotalRatings();\n\n    const ratingValues = Array.from(\n        { length: maxRating - minRating + 1 }, \n        (_, i) => maxRating - i\n    );\n\n    return (\n        <div className=\"flex flex-col w-full gap-6\">\n            <h3 className=\"text-2lg font-medium\">Customer Reviews</h3>\n            <div className=\"flex gap-3\">\n                <Ratings rating={averageRating} maxRating={5} className=\"skin-primary\" />\n                <span className=\"text-body font-medium\">({averageRating})</span>\n            </div>\n            <span className=\"text-body font-medium\">{totalRatings} Reviews</span>\n            <div className=\"grid grid-cols-8 gap-2\">\n                {Object.keys(ratings).length > 0 && (\n                    <>\n                        {ratingValues.map((ratingValue) => {\n                            const ratingCount = ratings[ratingValue] || 0;\n                            return (\n                                <>\n                                    <div className=\"col-span-7 flex gap-3 items-center\">\n                                        <span>{ratingValue}</span>\n                                        <Ratings rating={1} maxRating={1} iconCount={1} className=\"skin-primary shrink-0\" />\n                                        <ProgressBar\n                                            key={`bar-${ratingValue}`}\n                                            className=\"skin-primary w-full\"\n                                            value={ratingCount}\n                                            maxValue={totalRatings}\n                                            label={`Rating ${ratingValue}`}\n                                        />\n                                    </div>\n                                    <div className=\"col-span-1 flex items-baseline\">\n                                        <span key={`count-${ratingValue}`} className=\"text-sm\">\n                                            {ratings[ratingValue] || 0}\n                                        </span>\n                                    </div>\n                                </>\n                            );\n                        })}\n                    </>\n                )}\n            </div>\n        </div>\n    );\n}\n\nexport default ReviewOverview",
+      "type": "registry:ui"
+    }
+  ]
+}
