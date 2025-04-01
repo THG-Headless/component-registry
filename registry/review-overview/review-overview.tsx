@@ -1,10 +1,13 @@
 import React from "react";
 import Ratings from "../ratings/ratings";
 import ProgressBar from "../progress-bar/progress-bar";
+import { Button } from "../button/button";
 
 interface RatingScore {
     [key: number]: number;
 }
+
+type CreateAction = 'CREATE';
 
 interface ReviewOverviewProps {
     averageRating?: number;
@@ -12,9 +15,10 @@ interface ReviewOverviewProps {
     maxRating?: number;
     minRating?: number;
     ratings?: RatingScore;
+    onCreate?: (action: CreateAction) => void;
 }
 
-export const ReviewOverview: React.FC<ReviewOverviewProps> = ({ averageRating = 2.5, reviewCount = 1, maxRating = 5, minRating = 1, ratings = {}}) => {
+export const ReviewOverview: React.FC<ReviewOverviewProps> = ({ averageRating = 2.5, reviewCount = 1, maxRating = 5, minRating = 1, ratings = {}, onCreate}) => {
     const getTotalRatings = () => {
         return Object.values(ratings).reduce((total, count) => total + count, 0);
     };
@@ -40,7 +44,7 @@ export const ReviewOverview: React.FC<ReviewOverviewProps> = ({ averageRating = 
                         {ratingValues.map((ratingValue) => {
                             const ratingCount = ratings[ratingValue] || 0;
                             return (
-                                <>
+                                <React.Fragment key={`rating-${ratingValue}`}>
                                     <div className="col-span-7 flex gap-3 items-center">
                                         <span>{ratingValue}</span>
                                         <Ratings rating={1} maxRating={1} iconCount={1} className="skin-primary shrink-0" />
@@ -57,12 +61,15 @@ export const ReviewOverview: React.FC<ReviewOverviewProps> = ({ averageRating = 
                                             {ratings[ratingValue] || 0}
                                         </span>
                                     </div>
-                                </>
+                                </React.Fragment>
                             );
                         })}
                     </>
                 )}
             </div>
+            { onCreate && (
+                <Button className="skin-secondary w-fit" onClick={() => onCreate('CREATE')}>Create Review</Button>
+            )}
         </div>
     );
 }

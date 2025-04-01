@@ -6,9 +6,9 @@ import ProgressBar from "../../registry/progress-bar/progress-bar";
 import { Ratings } from "../../registry/ratings/ratings";
 import { TextArea } from "../../registry/text-area/text-area";
 import { TextInput } from "../../registry/text-input/text-input";
-import { ReviewOverview } from "../../registry/review-overview/review-overview";
 import { ReviewList } from "../../registry/review-list/review-list";
 import { ReviewWrapper } from "./ReviewWrapper.tsx"
+import { ReviewOverviewWrapper } from "./ReviewOverviewWrapper.tsx";
 
 interface Props {
   componentName: string;
@@ -34,7 +34,7 @@ const { componentName } = Astro.props;
   {componentName == "ratings@react" && <Ratings className="skin-primary" />}
   {componentName == "text-area@react" && <TextArea />}
   {componentName == "text-input@react" && <TextInput />}
-  {componentName == "review-overview@react" && <ReviewOverview averageRating={3.7} ratings={{1:40, 2:70, 3:400, 4:700, 5:1045}} />}
+  {componentName == "review-overview@react" && <ReviewOverviewWrapper client:load />}
   {componentName == "review-list@react" && <ReviewList subtitle="Explore some of our customers reviews."/>}
   {componentName == "review@react" && <ReviewWrapper client:load />}
 </div>
