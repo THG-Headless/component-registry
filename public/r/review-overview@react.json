@@ -5,9 +5,9 @@
   "title": "Review Overview",
   "description": "Overview of reviews with rating stars, review count and a score summary",
   "registryDependencies": [
-    "ratings@react",
-    "progress-bar@react",
-    "button@react"
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/ratings%40react.json",
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/progress-bar%40react.json",
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/button%40react.json"
   ],
   "files": [
     {
