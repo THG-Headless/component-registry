@@ -22,7 +22,7 @@ export const Alert: React.FC<AlertProps> = ({type, message}) => {
     }
     return (
         <div
-            className={`rounded-site mb-3 flex h-auto items-center gap-3 border p-3 text-sm font-light tracking-wider ${getAlertType(type)}`}
+            className={`alert ${getAlertType(type)}`}
         >
             {type === 'success' && (
                 <div>
