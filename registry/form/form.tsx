@@ -16,9 +16,10 @@ interface FormProps {
   submitText: string;
   submittedText?: string;
 
-  children: React.ReactNode;
+  children?: React.ReactNode;
 
   className?: string;
+  splitLayout?: boolean;
 }
 
 export const Form: React.FC<FormProps> = ({
@@ -29,6 +30,7 @@ export const Form: React.FC<FormProps> = ({
   submittedText,
   children,
   className = "",
+  splitLayout = false,
 }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,12 +51,26 @@ export const Form: React.FC<FormProps> = ({
         | HTMLInputElement
         | HTMLSelectElement
         | HTMLTextAreaElement;
+
       if (input.name && !input.checkValidity()) {
         newInvalidFields.add(input.name);
       }
 
-      if (input.type === "hidden" && input.required && !input.value) {
-        newInvalidFields.add(input.name);
+      if (input.type === "radio" && input.required) {
+        const radioInput = input as HTMLInputElement;
+        const radioGroup = form.elements.namedItem(
+          radioInput.name
+        ) as RadioNodeList;
+
+        if (radioGroup && radioGroup[0] === radioInput) {
+          const isAnyChecked = Array.from(radioGroup).some(
+            (radio) => (radio as HTMLInputElement).checked
+          );
+
+          if (!isAnyChecked) {
+            newInvalidFields.add(radioInput.name);
+          }
+        }
       }
     });
 
@@ -81,9 +97,22 @@ export const Form: React.FC<FormProps> = ({
         }
       });
 
-      await onSubmit(formDataObj);
+      let isEmptyFunction = false;
 
-      setIsSubmitted(true);
+      if (typeof onSubmit === "function") {
+        const fnString = onSubmit.toString();
+        if (fnString) {
+          isEmptyFunction = fnString.replace(/\s/g, "") === "()=>{}";
+        }
+      }
+
+      if (isEmptyFunction || typeof onSubmit !== "function") {
+        console.log("Form submitted with empty data:", formDataObj);
+        setIsSubmitted(true);
+      } else {
+        await onSubmit(formDataObj);
+        setIsSubmitted(true);
+      }
     } catch (error) {
       console.error("Form submission error:", error);
     } finally {
@@ -110,10 +139,21 @@ export const Form: React.FC<FormProps> = ({
             componentType.displayName === "Dropdown" ||
             props.id?.includes("dropdown"));
 
+        const isRatingInput =
+          componentType &&
+          (componentType.name === "RatingInput" ||
+            componentType.displayName === "RatingInput" ||
+            props.id?.includes("rating"));
+
         if (isDropdown) {
           return cloneElement(childElement, {
             ...props,
             error: true,
+          } as any);
+        } else if (isRatingInput) {
+          return cloneElement(childElement, {
+            ...props,
+            isInvalid: true,
           } as any);
         } else {
           return cloneElement(childElement, {
@@ -134,36 +174,78 @@ export const Form: React.FC<FormProps> = ({
 
   return (
     <div className={`w-full ${className}`}>
-      <div className="mb-6">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
-        {description && <p>{description}</p>}
-      </div>
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-        className="skin-form"
-        noValidate={true}
-      >
-        <div className="space-y-4">
-          {enhanceChildrenWithValidation(children)}
-        </div>
-
-        <div className="mt-6 flex gap-4">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="skin-primary-emphasised interactive"
-          >
-            {isSubmitting ? "Submitting..." : submitText}
-          </Button>
-        </div>
-
-        {isSubmitted && submittedText && (
-          <div className="mt-4 p-3 skin-success rounded-site" role="alert">
-            {submittedText}
+      {splitLayout ? (
+        <div className="flex flex-col md:flex-row md:gap-20">
+          <div className="md:w-1/2 mb-6 md:mb-0">
+            <h2 className="text-xl font-bold mb-2">{title}</h2>
+            {description && <p>{description}</p>}
           </div>
-        )}
-      </form>
+          <div className="md:w-1/2">
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit}
+              className="skin-form"
+              noValidate={true}
+            >
+              <div className="space-y-2">
+                {enhanceChildrenWithValidation(children)}
+              </div>
+
+              <div className="mt-6">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="skin-primary-emphasised interactive w-full"
+                >
+                  {isSubmitting ? "Submitting..." : submitText}
+                </Button>
+              </div>
+
+              {isSubmitted && submittedText && (
+                <div
+                  className="mt-4 p-3 skin-success rounded-site"
+                  role="alert"
+                >
+                  {submittedText}
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-2">{title}</h2>
+            {description && <p>{description}</p>}
+          </div>
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="skin-form"
+            noValidate={true}
+          >
+            <div className="space-y-4">
+              {enhanceChildrenWithValidation(children)}
+            </div>
+
+            <div className="mt-6 flex gap-4">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="skin-primary-emphasised interactive"
+              >
+                {isSubmitting ? "Submitting..." : submitText}
+              </Button>
+            </div>
+
+            {isSubmitted && submittedText && (
+              <div className="mt-4 p-3 skin-success rounded-site" role="alert">
+                {submittedText}
+              </div>
+            )}
+          </form>
+        </>
+      )}
     </div>
   );
 };

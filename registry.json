@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "Altitude",
-  "homepage": "https://acme.com",
+  "homepage": "https://thgaltitude.com/",
   "items": [
     {
       "name": "button@react",
@@ -13,7 +13,12 @@
           "path": "registry/button/button.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "input",
+        "wcagCertification": null
+      }
     },
     {
       "name": "text-input@react",
@@ -25,7 +30,12 @@
           "path": "registry/text-input/text-input.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "input",
+        "wcagCertification": null
+      }
     },
     {
       "name": "text-area@react",
@@ -37,7 +47,12 @@
           "path": "registry/text-area/text-area.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "input",
+        "wcagCertification": null
+      }
     },
     {
       "name": "dropdown@react",
@@ -69,7 +84,12 @@
           "path": "registry/dropdown/utils.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "input",
+        "wcagCertification": null
+      }
     },
     {
       "name": "ratings@react",
@@ -81,7 +101,29 @@
           "path": "registry/ratings/ratings.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "data",
+        "wcagCertification": null
+      }
+    },
+    {
+      "name": "rating-input@react",
+      "type": "registry:ui",
+      "title": "Rating Input",
+      "description": "Styled input for user rating selection",
+      "files": [
+        {
+          "path": "registry/rating-input/rating-input.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "input",
+        "wcagCertification": null
+      }
     },
     {
       "name": "progress-bar@react",
@@ -93,19 +135,56 @@
           "path": "registry/progress-bar/progress-bar.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "data",
+        "wcagCertification": null
+      }
     },
     {
       "name": "form@react",
       "type": "registry:component",
-      "title": "Form",
-      "description": "An form wrapper, designed to work with native HTML forms.",
+      "title": "Sample Form",
+      "description": "A form wrapper, designed to work with native HTML forms. For example usage, refer to the Review Form component.",
       "files": [
         {
           "path": "registry/form/form.tsx",
           "type": "registry:component"
         }
-      ]
+      ],
+      "registryDependencies": [
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/button%40react.json"
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "form",
+        "wcagCertification": null
+      }
+    },
+    {
+      "name": "review-form@react",
+      "type": "registry:block",
+      "title": "Sample Form",
+      "description": "A review form component that allows users to submit reviews.",
+      "files": [
+        {
+          "path": "registry/review-form/review-form.tsx",
+          "type": "registry:block"
+        }
+      ],
+      "registryDependencies": [
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-area%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-input%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/form%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input%40react.json"
+      ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
+      "meta": {
+        "category": "form",
+        "wcagCertification": null
+      }
     }
   ]
 }

@@ -6,7 +6,9 @@ import ProgressBar from "../../registry/progress-bar/progress-bar";
 import { Ratings } from "../../registry/ratings/ratings";
 import TextArea from "../../registry/text-area/text-area";
 import TextInput from "../../registry/text-input/text-input";
-import SampleForm from "../../registry/form/sampleForm";
+import Form from "../../registry/form/form";
+import ReviewForm from "../../registry/review-form/review-form";
+import RatingInput from "@registry/rating-input/rating-input";
 
 interface Props {
   componentName: string;
@@ -75,5 +77,28 @@ const { componentName } = Astro.props;
       />
     )
   }
-  {componentName == "form@react" && <SampleForm client:load />}
+  {
+    componentName == "form@react" && (
+      <Form
+        title="Form Title"
+        description="This is a form wrapper"
+        submitText="Submit Form"
+        submittedText="Form Submitted Successfully!"
+        onSubmit={() => {}}
+        client:load
+      />
+    )
+  }
+  {componentName == "review-form@react" && <ReviewForm client:load />}
+  {
+    componentName == "rating-input@react" && (
+      <RatingInput
+        label="Rate your experience"
+        placeholder="Select a rating"
+        helperText="Rate from 1 to 5"
+        errorMessage="Rating is required"
+        defaultValue={3}
+      />
+    )
+  }
 </div>

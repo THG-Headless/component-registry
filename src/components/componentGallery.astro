@@ -1,16 +1,7 @@
 ---
-// Import the registry data and metadata
+// Import the registry data
 import registryData from "../../registry.json";
-import metadataDataRaw from "../../metadata.json";
 import PreviewCard from "./PreviewCard.astro";
-
-interface Metadata {
-  [key: string]: {
-    category: string;
-  };
-}
-
-const metadataData: Metadata = metadataDataRaw as Metadata;
 
 // TypeScript interfaces for type safety
 interface RegistryFile {
@@ -25,6 +16,10 @@ interface RegistryComponent {
   description: string;
   registryDependencies?: string[];
   files: RegistryFile[];
+  meta?: {
+    category: string;
+    wcagCertification: string | null;
+  };
 }
 
 interface ProcessedComponent extends RegistryComponent {
@@ -49,8 +44,8 @@ interface ClientComponent {
 // Process each item to format the type tag and assign category
 const components: ProcessedComponent[] = registryData.items.map(
   (item: RegistryComponent) => {
-    // Assign category from metadata if available
-    const category = metadataData[item.name]?.category || null;
+    // Assign category from meta property if available
+    const category = item.meta?.category || null;
 
     return {
       ...item,
@@ -59,7 +54,7 @@ const components: ProcessedComponent[] = registryData.items.map(
         .replace(/^ui$/i, "UI") // Capitalize "ui" as "UI"
         .replace(/^\w/, (c) => c.toUpperCase()), // Capitalize first letter for other types
       rawType: item.type.replace("registry:", ""), // Get the raw type without the prefix
-      category: category, // Add category from metadata
+      category: category, // Add category from meta property
     };
   }
 );
