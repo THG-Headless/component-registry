@@ -139,6 +139,18 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "alert@react",
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "A simple alert component with success, error and information states.",
+      "files": [
+        {
+          "path": "registry/alert/alert.tsx",
+          "type": "registry:ui"
+        }
+      ]
     }
   ]
 }
