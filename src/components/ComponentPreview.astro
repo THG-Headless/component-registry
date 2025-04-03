@@ -9,6 +9,7 @@ import { TextInput } from "../../registry/text-input/text-input";
 import { ReviewList } from "../../registry/review-list/review-list";
 import { ReviewWrapper } from "./ReviewWrapper.tsx"
 import { ReviewOverviewWrapper } from "./ReviewOverviewWrapper.tsx";
+import { Alert } from "../../registry/alert/alert";
 
 interface Props {
   componentName: string;
@@ -37,4 +38,5 @@ const { componentName } = Astro.props;
   {componentName == "review-overview@react" && <ReviewOverviewWrapper client:load />}
   {componentName == "review-list@react" && <ReviewList subtitle="Explore some of our customers reviews."/>}
   {componentName == "review@react" && <ReviewWrapper client:load />}
+  {componentName == "alert@react" && <Alert type="success" message="This is a success banner" />}
 </div>
