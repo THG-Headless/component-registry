@@ -4,6 +4,7 @@ import type { ButtonHTMLAttributes } from "react";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export function Button({

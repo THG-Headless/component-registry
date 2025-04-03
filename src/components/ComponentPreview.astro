@@ -9,6 +9,9 @@ import TextInput from "../../registry/text-input/text-input";
 import Form from "../../registry/form/form";
 import ReviewForm from "../../registry/review-form/review-form";
 import RatingInput from "@registry/rating-input/rating-input";
+import { ReviewList } from "../../registry/review-list/review-list";
+import { ReviewWrapper } from "./wrappers/ReviewWrapper.tsx";
+import { ReviewOverviewWrapper } from "./wrappers/ReviewOverviewWrapper.tsx";
 
 interface Props {
   componentName: string;
@@ -101,4 +104,15 @@ const { componentName } = Astro.props;
       />
     )
   }
+  {
+    componentName == "review-overview@react" && (
+      <ReviewOverviewWrapper client:load />
+    )
+  }
+  {
+    componentName == "review-list@react" && (
+      <ReviewList subtitle="Explore some of our customers reviews." />
+    )
+  }
+  {componentName == "review@react" && <ReviewWrapper client:load />}
 </div>

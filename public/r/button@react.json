@@ -4,9 +4,7 @@
   "type": "registry:ui",
   "title": "Button",
   "description": "A simple button component with onClick support",
-  "dependencies": [
-    "@thg-altitude/standalone-components-css"
-  ],
+  "dependencies": ["@thg-altitude/standalone-components-css"],
   "files": [
     {
       "path": "registry/button/button.tsx",

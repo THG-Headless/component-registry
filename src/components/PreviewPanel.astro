@@ -16,7 +16,7 @@ const { component } = Astro.props;
 
 <div class="w-full h-full flex">
   <div
-    class="rounded-lg overflow-hidden w-full flex flex-col xl:flex-row shadow-xl border border-zinc-700"
+    class="overflow-hidden w-full flex flex-col xl:flex-row shadow-xl border border-zinc-700"
   >
     <!-- Component preview area (left side) -->
     <div class="flex-grow p-8 flex items-center justify-center skin relative">
@@ -26,7 +26,9 @@ const { component } = Astro.props;
     </div>
 
     <!-- Sidebar (right side) -->
-    <div class="w-full xl:w-96 bg-zinc-900 p-6 overflow-auto relative">
+    <div
+      class="w-full xl:w-96 xl:min-w-96 bg-zinc-900 p-6 overflow-auto relative"
+    >
       <div class="flex justify-end">
         <a
           href="/"
