@@ -4,11 +4,13 @@
   "type": "registry:ui",
   "title": "Button",
   "description": "A simple button component with onClick support",
-  "dependencies": ["@thg-altitude/standalone-components-css"],
+  "dependencies": [
+    "@thg-altitude/standalone-components-css"
+  ],
   "files": [
     {
       "path": "registry/button/button.tsx",
-      "content": "import React from \"react\";\nimport type { ButtonHTMLAttributes } from \"react\";\n\ninterface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {\n  children: React.ReactNode;\n  className?: string;\n}\n\nexport function Button({\n  children,\n  className = \"\",\n  type = \"button\",\n  disabled = false,\n  onClick,\n  ...restProps\n}: ButtonProps) {\n  return (\n    <button\n      className={`interactive btn ${className}`}\n      onClick={onClick}\n      type={type}\n      disabled={disabled}\n      {...restProps}\n    >\n      {children}\n    </button>\n  );\n}\n\nexport default Button;\n",
+      "content": "import React from \"react\";\nimport type { ButtonHTMLAttributes } from \"react\";\n\ninterface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {\n  children: React.ReactNode;\n  className?: string;\n  onClick?: React.MouseEventHandler<HTMLButtonElement>;\n}\n\nexport function Button({\n  children,\n  className = \"\",\n  type = \"button\",\n  disabled = false,\n  onClick,\n  ...restProps\n}: ButtonProps) {\n  return (\n    <button\n      className={`interactive btn ${className}`}\n      onClick={onClick}\n      type={type}\n      disabled={disabled}\n      {...restProps}\n    >\n      {children}\n    </button>\n  );\n}\n\nexport default Button;\n",
       "type": "registry:ui"
     }
   ],
