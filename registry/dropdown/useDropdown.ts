@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useId } from "react";
+import { useState, useRef, useEffect, useId, useCallback } from "react";
 import type {
   DropdownProps,
   DropdownState,
@@ -22,6 +22,7 @@ interface UseDropdownReturn {
   };
   dropdownIds: DropdownIds;
   filteredOptions: string[];
+  setSelectedValue: (value: string | null) => void;
 }
 
 export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
@@ -30,6 +31,7 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     disabled = false,
     enableSearch = true,
     id: externalId,
+    initialValue,
   } = props;
 
   // Ensure options is always an array
@@ -37,7 +39,9 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const [selectedValue, setSelectedValue] = useState<string | null>(
+    initialValue || null
+  );
   const [activeDescendant, setActiveDescendant] = useState<string | undefined>(
     undefined
   );
@@ -52,6 +56,12 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
   const dropdownIds = generateDropdownIds(uniqueId);
 
   const filteredOptions = filterOptions(optionsArray, searchValue);
+
+  useEffect(() => {
+    if (initialValue !== undefined && initialValue !== selectedValue) {
+      setSelectedValue(initialValue);
+    }
+  }, [initialValue, selectedValue]);
 
   useEffect(() => {
     addFocusStyles();
@@ -89,6 +99,15 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     dropdownIds,
   ]);
 
+  const onClickOutsideRef = useRef<((wasOpen: boolean) => void) | null>(null);
+
+  const setOnClickOutside = useCallback(
+    (callback: (wasOpen: boolean) => void) => {
+      onClickOutsideRef.current = callback;
+    },
+    []
+  );
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -96,7 +115,12 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
         !dropdownRef.current.contains(event.target as Node) &&
         isOpen
       ) {
+        const wasOpen = isOpen;
         setIsOpen(false);
+
+        if (onClickOutsideRef.current) {
+          onClickOutsideRef.current(wasOpen);
+        }
       }
     };
 
@@ -107,6 +131,10 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     };
   }, [isOpen]);
 
+  const isClosingDropdown = (currentIsOpen: boolean, newIsOpen: boolean) => {
+    return currentIsOpen && !newIsOpen;
+  };
+
   // Event handlers
   const toggleDropdown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -114,8 +142,13 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
 
     if (!disabled) {
       setOpenedByKeyboard(false);
-      setIsOpen(!isOpen);
+      const newIsOpen = !isOpen;
+      setIsOpen(newIsOpen);
+
+      return isClosingDropdown(isOpen, newIsOpen);
     }
+
+    return false;
   };
 
   const handleOptionClick = (option: string, e: React.MouseEvent) => {
@@ -170,6 +203,10 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     dropdownIds.dropdownTriggerId,
   ]);
 
+  const setSelectedValueCallback = useCallback((value: string | null) => {
+    setSelectedValue(value);
+  }, []);
+
   const state: DropdownState = {
     isOpen,
     searchValue,
@@ -184,6 +221,7 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     handleOptionClick,
     handleSearchChange,
     handleKeyDown,
+    setOnClickOutside,
   };
 
   return {
@@ -195,5 +233,6 @@ export const useDropdown = (props: DropdownProps): UseDropdownReturn => {
     },
     dropdownIds,
     filteredOptions,
+    setSelectedValue: setSelectedValueCallback,
   };
 };

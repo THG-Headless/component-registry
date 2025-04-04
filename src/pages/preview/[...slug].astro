@@ -2,7 +2,6 @@
 import Layout from "../../layouts/Layout.astro";
 import PreviewPanel from "../../components/PreviewPanel.astro";
 import registryData from "../../../registry.json";
-import metadataDataRaw from "../../../metadata.json";
 
 // Define getStaticPaths to pre-generate all component pages
 export async function getStaticPaths() {
@@ -19,9 +18,8 @@ export async function getStaticPaths() {
 const { item } = Astro.props;
 const componentName = item.name;
 
-// Get category from metadata if available
-const metadata = metadataDataRaw as Record<string, { category: string }>;
-const category = metadata[componentName]?.category || null;
+// Get category from meta property if available
+const category = item.meta?.category || null;
 
 // Format the type for display
 const formattedType = item.type

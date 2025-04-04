@@ -19,14 +19,11 @@ export const Ratings: React.FC<RatingsProps> = ({
   className,
   ariaLabel,
 }) => {
-  // Calculate rating percentage (0-1 scale)
   const ratingPercentage = Math.max(0, Math.min(rating / maxRating, 1));
 
-  // Generate default aria label if none provided
   const defaultAriaLabel = `Rating: ${rating} out of ${maxRating}`;
   const finalAriaLabel = ariaLabel || defaultAriaLabel;
 
-  // Define styles with the four specific CSS variables
   const styles: React.CSSProperties = {
     "--rating-icon-count": iconCount,
     "--rating-icon-size": iconSize,

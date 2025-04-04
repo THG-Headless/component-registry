@@ -2,75 +2,99 @@ import React from "react";
 import type { DropdownProps } from "./types";
 import { useDropdown } from "./useDropdown";
 
-const Dropdown: React.FC<DropdownProps> = (props) => {
+export const Dropdown: React.FC<DropdownProps> = (props) => {
   const {
-    label = "Label",
-    options = [
-      "Option 1",
-      "Option 2",
-      "Option 3",
-      "Option 4",
-      "Option 5",
-      "Option 6",
-      "Option 7",
-      "Option 8",
-      "Option 9",
-      "Option 10",
-    ],
-    placeholder = "Placeholder Text",
-    error = false,
-    errorMessage = "Error Message",
-    disabled = false,
-    enableSearch = true,
-    required = true,
+    options,
+    placeholder,
+    disabled,
+    enableSearch = false,
+    required,
+    error,
+    errorMessage,
     noOptionsMessage = "No options available",
     searchPlaceholder = "Search...",
-    helperText = "Helper text",
+    className = "",
+    onChange,
+    value,
+    name,
+    id,
+    form,
+    autoFocus,
+    size,
+    multiple,
+    helperText,
+    label,
+    initialValue,
+    ...restProps
   } = props;
 
-  // Create a new props object with our defaults
   const propsWithDefaults = {
     ...props,
     options: props.options || options,
+    initialValue: value as string,
   };
 
-  // Use the custom hook to manage state and behavior
-  const { state, handlers, refs, dropdownIds, filteredOptions } =
-    useDropdown(propsWithDefaults);
+  const {
+    state,
+    handlers,
+    refs,
+    dropdownIds,
+    filteredOptions,
+    setSelectedValue,
+  } = useDropdown(propsWithDefaults);
+
+  React.useEffect(() => {
+    if (onChange && state.selectedValue) {
+      const syntheticEvent = {
+        target: {
+          name,
+          value: state.selectedValue,
+        },
+      };
+      // @ts-ignore - We're creating a simplified version of the event
+      onChange(syntheticEvent);
+    }
+  }, [state.selectedValue, onChange, name]);
+
+  React.useEffect(() => {
+    if (autoFocus) {
+      const button = document.getElementById(dropdownIds.dropdownTriggerId);
+      if (button) {
+        button.focus();
+      }
+    }
+  }, [autoFocus, dropdownIds.dropdownTriggerId]);
 
   const { isOpen, selectedValue, activeDescendant } = state;
-
   const { toggleDropdown, handleOptionClick, handleSearchChange } = handlers;
-
   const { dropdownRef, searchInputRef } = refs;
-
   const {
     dropdownTriggerId,
     dropdownLabelId,
     dropdownListId,
     dropdownSearchId,
-    dropdownHelperId,
-    dropdownErrorId,
   } = dropdownIds;
 
   return (
     <div
       ref={dropdownRef}
-      className={`skin-form dropdown-wrapper group wrapper ${
+      className={`skin-form dropdown-wrapper group ${
         isOpen ? "dropdown-open" : ""
-      } ${error ? "dropdown-error" : ""}`}
+      } ${className}`}
+      data-form={form}
+      data-size={size}
+      data-multiple={multiple}
+      {...(restProps as any)}
     >
-      <label
-        htmlFor={enableSearch ? dropdownSearchId : dropdownTriggerId}
-        id={dropdownLabelId}
-        className="dropdown-label text-body font-semi-bold"
-      >
-        {label}
-        {required && <span className="sr-only"> (required)</span>}
-      </label>
+      {/* Hidden input to store the value for form submission */}
+      <input
+        type="hidden"
+        name={name}
+        value={selectedValue || ""}
+        required={required}
+      />
       <div className="dropdown">
         {enableSearch ? (
-          // When search is enabled, the input becomes the combobox
           <div
             className="wrapper"
             role="combobox"
@@ -89,7 +113,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               onClick={toggleDropdown}
               type="button"
               disabled={disabled}
-              aria-describedby={error ? dropdownErrorId : dropdownHelperId}
             >
               <div className="dropdown-summary-content">
                 <svg
@@ -128,7 +151,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
             </button>
           </div>
         ) : (
-          // When search is disabled, the button becomes the combobox
           <div
             className="wrapper"
             role="combobox"
@@ -146,12 +168,10 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               aria-controls={dropdownListId}
               aria-labelledby={dropdownLabelId}
               aria-autocomplete="none"
-              aria-describedby={error ? dropdownErrorId : dropdownHelperId}
               onClick={toggleDropdown}
               type="button"
               disabled={disabled}
               aria-required={required}
-              aria-invalid={error}
             >
               <div className="dropdown-summary-content">
                 <svg
@@ -244,7 +264,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
                   }`}
                   aria-selected={selectedValue === option}
                   onClick={(e) => handleOptionClick(option, e)}
-                  tabIndex={-1} // Make focusable but not in tab order
+                  tabIndex={-1}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -270,35 +290,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
             )}
           </ul>
         </div>
-      </div>
-      <div className="dropdown-helper-wrapper">
-        <p className="dropdown-helper text-sm soft" id={dropdownHelperId}>
-          {helperText}
-        </p>
-        {error && (
-          <div className="skin-error dropdown-error-content">
-            <svg
-              className="dropdown-icon"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <p
-              className="text-sm font-medium"
-              id={dropdownErrorId}
-              role="alert"
-            >
-              {errorMessage}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

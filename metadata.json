@@ -1,6 +1,6 @@
 {
   "button@react": {
-    "category": "Button"
+    "category": "Input"
   },
   "text-input@react": {
     "category": "Input"
@@ -11,10 +11,19 @@
   "ratings@react": {
     "category": "Data"
   },
+  "rating-input@react": {
+    "category": "Input"
+  },
   "progress-bar@react": {
     "category": "Data"
   },
   "dropdown@react": {
     "category": "Input"
+  },
+  "form@react": {
+    "category": "Form"
+  },
+  "review-form@react": {
+    "category": "Form"
   }
 }

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dropdown-field@react",
+  "type": "registry:component",
+  "title": "Dropdown Field",
+  "description": "A decorated dropdown input",
+  "registryDependencies": [
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown%40react.json"
+  ],
+  "files": [
+    {
+      "path": "registry/fields/dropdown-field.tsx",
+      "content": "import Dropdown from \"@registry/dropdown/dropdown\";\nimport FieldWrapper from \"@registry/field-wrapper/field-wrapper\";\nimport type { FieldProps } from \"@registry/field-wrapper/field-wrapper\";\n\nimport type { SelectHTMLAttributes } from \"react\";\nimport type { DropdownProps as BaseDropdownProps } from \"@registry/dropdown/types\";\n\n// Extract dropdown-specific props that aren't in FieldProps\ntype DropdownSpecificProps = {\n  options?: string[];\n  enableSearch?: boolean;\n  noOptionsMessage?: string;\n  searchPlaceholder?: string;\n  value?: string;\n  error?: boolean;\n};\n\ninterface DropdownFieldProps\n  extends FieldProps,\n    DropdownSpecificProps,\n    Omit<\n      SelectHTMLAttributes<HTMLSelectElement>,\n      | \"id\"\n      | \"name\"\n      | \"placeholder\"\n      | \"disabled\"\n      | \"required\"\n      | \"aria-invalid\"\n      | \"onChange\"\n      | \"value\"\n    > {\n  onChange?: (e: any) => void;\n}\n\nconst DropdownField: React.FC<DropdownFieldProps> = ({\n  id,\n  name,\n  label,\n  helperText,\n  errorMessage,\n  placeholder,\n  required = false,\n  \"aria-invalid\": ariaInvalid = false,\n  disabled = false,\n  options = [],\n  enableSearch = false,\n  noOptionsMessage = \"No options available\",\n  searchPlaceholder = \"Search...\",\n  onChange,\n  value,\n  ...restProps\n}) => {\n  return (\n    <div className=\"w-full\">\n      <FieldWrapper\n        id={id}\n        name={name}\n        label={label}\n        helperText={helperText}\n        errorMessage={errorMessage}\n        placeholder={placeholder}\n        required={required}\n        aria-invalid={ariaInvalid}\n        disabled={disabled}\n      >\n        <Dropdown\n          options={options}\n          disabled={disabled}\n          required={required}\n          error={ariaInvalid}\n          errorMessage={errorMessage}\n          enableSearch={enableSearch}\n          noOptionsMessage={noOptionsMessage}\n          searchPlaceholder={searchPlaceholder}\n          onChange={onChange}\n          value={value}\n          className=\"w-full\"\n          {...restProps}\n        />\n      </FieldWrapper>\n    </div>\n  );\n};\n\nexport default DropdownField;\n",
+      "type": "registry:component"
+    }
+  ],
+  "meta": {
+    "category": "form",
+    "usage": null,
+    "wcagCertification": null
+  }
+}

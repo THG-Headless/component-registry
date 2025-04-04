@@ -1,16 +1,17 @@
-export interface DropdownProps {
+import type { SelectHTMLAttributes } from "react";
+
+export interface DropdownProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   options?: string[];
   placeholder?: string;
   error?: boolean;
   errorMessage?: string;
-  disabled?: boolean;
   enableSearch?: boolean;
-  id?: string;
-  required?: boolean;
   noOptionsMessage?: string;
   searchPlaceholder?: string;
   helperText?: string;
+  className?: string;
+  initialValue?: string;
 }
 
 export interface DropdownState {
@@ -23,10 +24,11 @@ export interface DropdownState {
 }
 
 export interface DropdownHandlers {
-  toggleDropdown: (e: React.MouseEvent) => void;
+  toggleDropdown: (e: React.MouseEvent) => boolean;
   handleOptionClick: (option: string, e: React.MouseEvent) => void;
   handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
+  setOnClickOutside: (callback: (wasOpen: boolean) => void) => void;
 }
 
 export interface DropdownIds {
