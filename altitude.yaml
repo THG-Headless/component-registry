@@ -2,14 +2,13 @@ version: v2.0
 provider: cloudflare
 routes:
   - pathPrefix: /
-    name: ssr
-    type: function
+    name: ssg
+    type: static
     directory: .
     build:
       command: build
       output:
         directory: dist
-        filename: _worker.js
       nodeSettings:
         version: 22.13.1
   - pathPrefix: favicon.svg
