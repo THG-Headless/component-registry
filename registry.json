@@ -183,8 +183,8 @@
         }
       ],
       "registryDependencies": [
-        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-area%40react.json",
-        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-inpu-fieldt%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-area-field%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-input-fieldt%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/form%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown-field%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input-field%40react.json"
