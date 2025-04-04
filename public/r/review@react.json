@@ -4,7 +4,9 @@
   "type": "registry:component",
   "title": "Review",
   "description": "Individual review component with a title, rating, review body, date, author and vote buttons.",
-  "dependencies": ["@thg-altitude/standalone-components-css"],
+  "dependencies": [
+    "@thg-altitude/standalone-components-css"
+  ],
   "registryDependencies": [
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/ratings%40react.json",
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/button%40react.json"

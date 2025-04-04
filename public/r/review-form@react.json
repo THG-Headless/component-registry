@@ -4,13 +4,15 @@
   "type": "registry:block",
   "title": "Review Form",
   "description": "A review form component that allows users to submit reviews.",
-  "dependencies": ["@thg-altitude/standalone-components-css"],
+  "dependencies": [
+    "@thg-altitude/standalone-components-css"
+  ],
   "registryDependencies": [
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-area%40react.json",
-    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-input%40react.json",
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-inpu-fieldt%40react.json",
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/form%40react.json",
-    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown%40react.json",
-    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input%40react.json"
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown-field%40react.json",
+    "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input-field%40react.json"
   ],
   "files": [
     {

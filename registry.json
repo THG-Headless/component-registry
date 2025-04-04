@@ -184,10 +184,10 @@
       ],
       "registryDependencies": [
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-area%40react.json",
-        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-input%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-inpu-fieldt%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/form%40react.json",
-        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown%40react.json",
-        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input%40react.json"
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown-field%40react.json",
+        "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input-field%40react.json"
       ],
       "dependencies": ["@thg-altitude/standalone-components-css"],
       "meta": {
@@ -291,6 +291,7 @@
       "registryDependencies": [
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/alert%40react.json"
       ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
       "meta": {
         "category": "form",
         "usage": null,
@@ -312,6 +313,7 @@
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-input%40react.json"
       ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
       "meta": {
         "category": "form",
         "usage": null,
@@ -333,6 +335,7 @@
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-area%40react.json"
       ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
       "meta": {
         "category": "form",
         "usage": null,
@@ -354,6 +357,7 @@
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown%40react.json"
       ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
       "meta": {
         "category": "form",
         "usage": null,
@@ -375,6 +379,7 @@
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
         "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/rating-input%40react.json"
       ],
+      "dependencies": ["@thg-altitude/standalone-components-css"],
       "meta": {
         "category": "form",
         "usage": null,

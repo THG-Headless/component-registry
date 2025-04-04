@@ -4,6 +4,9 @@
   "type": "registry:component",
   "title": "Text Input Field",
   "description": "A decorated text input",
+  "dependencies": [
+    "@thg-altitude/standalone-components-css"
+  ],
   "registryDependencies": [
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/text-input%40react.json"
