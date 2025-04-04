@@ -9,8 +9,6 @@ routes:
       command: build
       output:
         directory: dist
-        filename: _bundled_worker.js
-        staticDirectory: ssr-assets
       nodeSettings:
         version: 22.13.1
   - pathPrefix: favicon.svg
