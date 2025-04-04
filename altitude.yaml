@@ -2,8 +2,8 @@ version: v2.0
 provider: cloudflare
 routes:
   - pathPrefix: /
-    name: ssg
-    type: static
+    name: ssr
+    type: function
     directory: .
     build:
       command: build
