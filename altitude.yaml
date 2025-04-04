@@ -3,7 +3,7 @@ provider: cloudflare
 routes:
   - pathPrefix: /
     name: ssr
-    type: function
+    type: static
     directory: .
     build:
       command: build
