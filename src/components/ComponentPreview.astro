@@ -2,6 +2,7 @@
 // Import all components explicitly
 import { Button } from "../../registry/button/button";
 import Dropdown from "../../registry/dropdown/dropdown";
+import DropdownField from "../../registry/fields/dropdown-field";
 import ProgressBar from "../../registry/progress-bar/progress-bar";
 import { Ratings } from "../../registry/ratings/ratings";
 import TextArea from "../../registry/text-area/text-area";
@@ -9,9 +10,14 @@ import TextInput from "../../registry/text-input/text-input";
 import Form from "../../registry/form/form";
 import ReviewForm from "../../registry/review-form/review-form";
 import RatingInput from "@registry/rating-input/rating-input";
+import RatingInputField from "../../registry/fields/rating-input-field";
 import { ReviewList } from "../../registry/review-list/review-list";
 import { ReviewWrapper } from "./wrappers/ReviewWrapper.tsx";
 import { ReviewOverviewWrapper } from "./wrappers/ReviewOverviewWrapper.tsx";
+import { Alert } from "../../registry/alert/alert";
+import FieldWrapper from "../../registry/field-wrapper/field-wrapper.tsx";
+import TextInputField from "../../registry/fields/text-input-field";
+import TextAreaField from "../../registry/fields/text-area-field";
 
 interface Props {
   componentName: string;
@@ -32,10 +38,7 @@ const { componentName } = Astro.props;
     componentName == "dropdown@react" && (
       <Dropdown
         client:load
-        label="Select an option"
         placeholder="Choose an option"
-        helperText="Select from the list"
-        errorMessage="An option is required"
         noOptionsMessage="No matching options"
         searchPlaceholder="Search options..."
         enableSearch={true}
@@ -56,28 +59,18 @@ const { componentName } = Astro.props;
   }
   {
     componentName == "progress-bar@react" && (
-      <ProgressBar className="skin-success" />
+      <ProgressBar className="skin-primary" />
     )
   }
   {componentName == "ratings@react" && <Ratings className="skin-primary" />}
   {
     componentName == "text-area@react" && (
-      <TextArea
-        label="Feedback"
-        placeholder="Enter your message here"
-        helperText="Please provide your feedback"
-        errorMessage="Feedback is required"
-      />
+      <TextArea placeholder="Enter your message here" />
     )
   }
   {
     componentName == "text-input@react" && (
-      <TextInput
-        label="Username"
-        placeholder="Enter your username"
-        helperText="Enter a unique username"
-        errorMessage="Username is required"
-      />
+      <TextInput placeholder="Enter your text here" />
     )
   }
   {
@@ -95,13 +88,7 @@ const { componentName } = Astro.props;
   {componentName == "review-form@react" && <ReviewForm client:load />}
   {
     componentName == "rating-input@react" && (
-      <RatingInput
-        label="Rate your experience"
-        placeholder="Select a rating"
-        helperText="Rate from 1 to 5"
-        errorMessage="Rating is required"
-        defaultValue={3}
-      />
+      <RatingInput defaultValue={3} client:load />
     )
   }
   {
@@ -115,4 +102,75 @@ const { componentName } = Astro.props;
     )
   }
   {componentName == "review@react" && <ReviewWrapper client:load />}
+  {
+    componentName == "alert@react" && (
+      <div class="space-y-4">
+        <Alert type="info" message="This is a information banner" />
+        <Alert type="success" message="This is a success banner" />
+        <Alert type="error" message="This is an error banner" />
+      </div>
+    )
+  }
+  {
+    componentName == "field-wrapper@react" && (
+      <FieldWrapper
+        label="Input Label"
+        helperText="This is a helper text"
+        errorMessage="This is an error message"
+      >
+        <div class="h-8" />
+      </FieldWrapper>
+    )
+  }
+  {
+    componentName == "text-input-field@react" && (
+      <TextInputField
+        label="Input Label"
+        helperText="This is a helper text"
+        errorMessage="This is an error message"
+        placeholder="Enter your text here"
+        maxlength={50}
+        client:load
+      />
+    )
+  }
+  {
+    componentName == "dropdown-field@react" && (
+      <DropdownField
+        label="Select an option"
+        helperText="Select from the list"
+        errorMessage="An option is required"
+        placeholder="Choose an option"
+        options={["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"]}
+        enableSearch={true}
+        noOptionsMessage="No matching options"
+        searchPlaceholder="Search options..."
+        client:load
+      />
+    )
+  }
+  {
+    componentName == "rating-input-field@react" && (
+      <div class="max-w-100">
+        <RatingInputField
+          label="Provide a Rating"
+          helperText="Rate from 1 to 5"
+          errorMessage="Rating is required"
+          client:load
+        />
+      </div>
+    )
+  }
+  {
+    componentName == "text-area-field@react" && (
+      <TextAreaField
+        label="Input Label"
+        helperText="This is a helper text"
+        errorMessage="This is an error message"
+        placeholder="Enter your message here"
+        maxlength={100}
+        client:load
+      />
+    )
+  }
 </div>

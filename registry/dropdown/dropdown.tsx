@@ -2,20 +2,18 @@ import React from "react";
 import type { DropdownProps } from "./types";
 import { useDropdown } from "./useDropdown";
 
-const Dropdown: React.FC<DropdownProps> = (props) => {
+export const Dropdown: React.FC<DropdownProps> = (props) => {
   const {
-    label,
     options,
     placeholder,
+    disabled,
+    enableSearch = false,
+    required,
     error,
     errorMessage,
-    disabled,
-    enableSearch,
-    required,
-    noOptionsMessage,
-    searchPlaceholder,
-    helperText,
-    className,
+    noOptionsMessage = "No options available",
+    searchPlaceholder = "Search...",
+    className = "",
     onChange,
     value,
     name,
@@ -24,6 +22,9 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
     autoFocus,
     size,
     multiple,
+    helperText,
+    label,
+    initialValue,
     ...restProps
   } = props;
 
@@ -65,25 +66,21 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
   }, [autoFocus, dropdownIds.dropdownTriggerId]);
 
   const { isOpen, selectedValue, activeDescendant } = state;
-
   const { toggleDropdown, handleOptionClick, handleSearchChange } = handlers;
-
   const { dropdownRef, searchInputRef } = refs;
-
   const {
     dropdownTriggerId,
     dropdownLabelId,
     dropdownListId,
     dropdownSearchId,
-    dropdownHelperId,
-    dropdownErrorId,
   } = dropdownIds;
+
   return (
     <div
       ref={dropdownRef}
-      className={`skin-form dropdown-wrapper group wrapper ${
+      className={`skin-form dropdown-wrapper group ${
         isOpen ? "dropdown-open" : ""
-      } ${error ? "dropdown-error" : ""} ${className}`}
+      } ${className}`}
       data-form={form}
       data-size={size}
       data-multiple={multiple}
@@ -96,23 +93,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
         value={selectedValue || ""}
         required={required}
       />
-      <div className="input-label-wrapper">
-        <label
-          htmlFor={enableSearch ? dropdownSearchId : dropdownTriggerId}
-          id={dropdownLabelId}
-          className="dropdown-label text-body font-semi-bold"
-        >
-          {label}
-          {required && (
-            <span
-              className="input-status text-sm font-light soft pl-2"
-              aria-hidden="true"
-            >
-              Required
-            </span>
-          )}
-        </label>
-      </div>
       <div className="dropdown">
         {enableSearch ? (
           <div
@@ -133,7 +113,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               onClick={toggleDropdown}
               type="button"
               disabled={disabled}
-              aria-describedby={error ? dropdownErrorId : dropdownHelperId}
             >
               <div className="dropdown-summary-content">
                 <svg
@@ -172,7 +151,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
             </button>
           </div>
         ) : (
-          // When search is disabled, the button becomes the combobox
           <div
             className="wrapper"
             role="combobox"
@@ -190,12 +168,10 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
               aria-controls={dropdownListId}
               aria-labelledby={dropdownLabelId}
               aria-autocomplete="none"
-              aria-describedby={error ? dropdownErrorId : dropdownHelperId}
               onClick={toggleDropdown}
               type="button"
               disabled={disabled}
               aria-required={required}
-              aria-invalid={error}
             >
               <div className="dropdown-summary-content">
                 <svg
@@ -288,7 +264,7 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
                   }`}
                   aria-selected={selectedValue === option}
                   onClick={(e) => handleOptionClick(option, e)}
-                  tabIndex={-1} // Make focusable but not in tab order
+                  tabIndex={-1}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -314,35 +290,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
             )}
           </ul>
         </div>
-      </div>
-      <div className="dropdown-helper-wrapper">
-        <p className="dropdown-helper text-sm soft pl-2" id={dropdownHelperId}>
-          {helperText}
-        </p>
-        {error && (
-          <div className="skin-error dropdown-error-content">
-            <svg
-              className="dropdown-icon"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                fillRule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <p
-              className="text-sm font-medium"
-              id={dropdownErrorId}
-              role="alert"
-            >
-              {errorMessage}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

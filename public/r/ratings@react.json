@@ -15,7 +15,8 @@
     }
   ],
   "meta": {
-    "category": "data",
+    "category": "display",
+    "usage": null,
     "wcagCertification": null
   }
 }

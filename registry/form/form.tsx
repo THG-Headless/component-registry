@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import type { FormEvent, ReactElement } from "react";
 import Button from "@registry/button/button";
+import Alert from "@registry/alert/alert";
 
 interface FormProps {
   title: string;
@@ -153,12 +154,12 @@ export const Form: React.FC<FormProps> = ({
         } else if (isRatingInput) {
           return cloneElement(childElement, {
             ...props,
-            isInvalid: true,
+            "aria-invalid": true,
           } as any);
         } else {
           return cloneElement(childElement, {
             ...props,
-            isInvalid: true,
+            "aria-invalid": true,
           } as any);
         }
       }
@@ -174,78 +175,53 @@ export const Form: React.FC<FormProps> = ({
 
   return (
     <div className={`w-full ${className}`}>
-      {splitLayout ? (
-        <div className="flex flex-col md:flex-row md:gap-20">
-          <div className="md:w-1/2 mb-6 md:mb-0">
-            <h2 className="text-xl font-bold mb-2">{title}</h2>
-            {description && <p>{description}</p>}
-          </div>
-          <div className="md:w-1/2">
-            <form
-              ref={formRef}
-              onSubmit={handleSubmit}
-              className="skin-form"
-              noValidate={true}
-            >
-              <div className="space-y-2">
-                {enhanceChildrenWithValidation(children)}
-              </div>
-
-              <div className="mt-6">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="skin-primary-emphasised interactive w-full"
-                >
-                  {isSubmitting ? "Submitting..." : submitText}
-                </Button>
-              </div>
-
-              {isSubmitted && submittedText && (
-                <div
-                  className="mt-4 p-3 skin-success rounded-site"
-                  role="alert"
-                >
-                  {submittedText}
-                </div>
-              )}
-            </form>
-          </div>
+      <div
+        className={`${
+          splitLayout ? "flex flex-col md:flex-row md:gap-20" : ""
+        }`}
+      >
+        <div className={`${splitLayout ? "md:w-1/2 mb-6 md:mb-0" : "mb-6"}`}>
+          <h2 className="text-xl font-bold mb-2">{title}</h2>
+          {description && <p>{description}</p>}
         </div>
-      ) : (
-        <>
-          <div className="mb-6">
-            <h2 className="text-xl font-bold mb-2">{title}</h2>
-            {description && <p>{description}</p>}
-          </div>
+
+        <div className={splitLayout ? "md:w-1/2" : ""}>
           <form
             ref={formRef}
             onSubmit={handleSubmit}
             className="skin-form"
             noValidate={true}
           >
-            <div className="space-y-4">
+            <div className={`${splitLayout ? "space-y-2" : "space-y-4"}`}>
               {enhanceChildrenWithValidation(children)}
             </div>
 
-            <div className="mt-6 flex gap-4">
+            <div className={`mt-6 ${!splitLayout ? "flex gap-4" : ""}`}>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="skin-primary-emphasised interactive"
+                className={`skin-primary-emphasised interactive ${
+                  splitLayout ? "w-full" : ""
+                }`}
               >
                 {isSubmitting ? "Submitting..." : submitText}
               </Button>
             </div>
 
             {isSubmitted && submittedText && (
-              <div className="mt-4 p-3 skin-success rounded-site" role="alert">
-                {submittedText}
+              <div className={splitLayout ? "mt-2" : "mt-4"}>
+                {splitLayout ? (
+                  <Alert type="success" message="Form successfully submitted" />
+                ) : (
+                  <div className="p-3 skin-success rounded-site" role="alert">
+                    {submittedText}
+                  </div>
+                )}
               </div>
             )}
           </form>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,12 +1,15 @@
-import TextArea from "@registry/text-area/text-area";
-import TextInput from "@registry/text-input/text-input";
-import Dropdown from "@registry/dropdown/dropdown";
-import RatingInput from "@registry/rating-input/rating-input";
 import Form from "@registry/form/form";
+import TextInputField from "@registry/fields/text-input-field";
+import RatingInputField from "@registry/fields/rating-input-field";
+import TextAreaField from "@registry/fields/text-area-field";
+import DropdownField from "@registry/fields/dropdown-field";
 
 export const SampleForm = () => {
   const handleSubmit = (data: Record<string, any>) => {
-    console.log("Form submitted with data:", data);
+    console.warn(
+      "This is a placeholder for the form submission logic. You can replace this with your own implementation.\n\nData submitted:\n",
+      data
+    );
   };
   return (
     <Form
@@ -17,7 +20,7 @@ export const SampleForm = () => {
       submittedText="Review Submitted Successfully!"
       splitLayout={true}
     >
-      <RatingInput
+      <RatingInputField
         id="satisfaction"
         name="satisfaction"
         label="Rating"
@@ -25,22 +28,22 @@ export const SampleForm = () => {
         numberOfOptions={5}
         required={true}
       />
-      <TextInput
+      <TextInputField
         id="title"
         name="title"
         label="Review Title"
         errorMessage="Name is required"
         required={true}
       />
-      <TextArea
+      <TextAreaField
         id="message"
         name="message"
         label="Your Review"
         errorMessage="Please provide a review"
         required={true}
-        maxLength={5000}
+        maxlength={5000}
       />
-      <TextInput
+      <TextInputField
         id="nickname"
         name="nickname"
         label="Nickname"
@@ -48,7 +51,7 @@ export const SampleForm = () => {
         errorMessage="Name is required"
         required={true}
       />
-      <Dropdown
+      <DropdownField
         id="age"
         name="age"
         label="Age Range"
@@ -56,9 +59,8 @@ export const SampleForm = () => {
         placeholder="Select your age range"
         errorMessage="Please select a category"
         required={false}
-        className="w-full"
       />
-      <Dropdown
+      <DropdownField
         id="gender"
         name="gender"
         label="Gender"
@@ -66,7 +68,6 @@ export const SampleForm = () => {
         placeholder="Select your gender"
         errorMessage="Please select a category"
         required={false}
-        className="w-full"
       />
     </Form>
   );
