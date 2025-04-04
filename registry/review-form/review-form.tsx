@@ -1,8 +1,8 @@
-import Form from "@registry/form/form";
-import TextInputField from "@registry/fields/text-input-field";
-import RatingInputField from "@registry/fields/rating-input-field";
-import TextAreaField from "@registry/fields/text-area-field";
-import DropdownField from "@registry/fields/dropdown-field";
+import Form from "@/registry/form/form";
+import TextInputField from "@/registry/fields/text-input-field";
+import RatingInputField from "@/registry/fields/rating-input-field";
+import TextAreaField from "@/registry/fields/text-area-field";
+import DropdownField from "@/registry/fields/dropdown-field";
 
 export const SampleForm = () => {
   const handleSubmit = (data: Record<string, any>) => {

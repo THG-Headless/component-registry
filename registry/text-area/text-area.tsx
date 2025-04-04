@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import type { ChangeEvent, TextareaHTMLAttributes } from "react";
+import React from "react";
+import type { TextareaHTMLAttributes } from "react";
 
 export const TextArea: React.FC<TextareaHTMLAttributes<HTMLTextAreaElement>> = (
   props

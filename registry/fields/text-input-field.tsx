@@ -1,8 +1,8 @@
 import React from "react";
 import type { InputHTMLAttributes } from "react";
-import TextInput from "@registry/text-input/text-input";
-import InputWrapper from "@registry/field-wrapper/field-wrapper";
-import type { FieldProps } from "@registry/field-wrapper/field-wrapper";
+import TextInput from "@/registry/text-input/text-input";
+import InputWrapper from "@/registry/field-wrapper/field-wrapper";
+import type { FieldProps } from "@/registry/field-wrapper/field-wrapper";
 
 type TextInputFieldProps = FieldProps &
   Omit<

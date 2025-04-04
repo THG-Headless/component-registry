@@ -1,9 +1,9 @@
-import Dropdown from "@registry/dropdown/dropdown";
-import FieldWrapper from "@registry/field-wrapper/field-wrapper";
-import type { FieldProps } from "@registry/field-wrapper/field-wrapper";
+import Dropdown from "@/registry/dropdown/dropdown";
+import FieldWrapper from "@/registry/field-wrapper/field-wrapper";
+import type { FieldProps } from "@/registry/field-wrapper/field-wrapper";
 
 import type { SelectHTMLAttributes } from "react";
-import type { DropdownProps as BaseDropdownProps } from "@registry/dropdown/types";
+import type { DropdownProps as BaseDropdownProps } from "@/registry/dropdown/types";
 
 // Extract dropdown-specific props that aren't in FieldProps
 type DropdownSpecificProps = {

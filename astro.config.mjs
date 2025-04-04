@@ -9,7 +9,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        "@registry":
+        "@/registry":
           "/Users/joe.johnson02/Documents/Altitude/component-registry/registry",
       },
     },

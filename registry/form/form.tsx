@@ -6,8 +6,8 @@ import React, {
   cloneElement,
 } from "react";
 import type { FormEvent, ReactElement } from "react";
-import Button from "@registry/button/button";
-import Alert from "@registry/alert/alert";
+import Button from "@/registry/button/button";
+import Alert from "@/registry/alert/alert";
 
 interface FormProps {
   title: string;
