@@ -4,6 +4,9 @@
   "type": "registry:component",
   "title": "Field Wrapper",
   "description": "A wrapper for inputs to provide consistent styling and behavior for labels, helper text, and error messages.",
+  "dependencies": [
+    "@thg-altitude/standalone-components-css"
+  ],
   "registryDependencies": [
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/alert%40react.json"
   ],

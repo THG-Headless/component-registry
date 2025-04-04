@@ -4,6 +4,9 @@
   "type": "registry:component",
   "title": "Dropdown Field",
   "description": "A decorated dropdown input",
+  "dependencies": [
+    "@thg-altitude/standalone-components-css"
+  ],
   "registryDependencies": [
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/field-wrapper%40react.json",
     "https://raw.githubusercontent.com/THG-Headless/component-registry/refs/heads/main/public/r/dropdown%40react.json"
