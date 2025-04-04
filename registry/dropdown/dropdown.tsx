@@ -1,6 +1,6 @@
 import React from "react";
-import type { DropdownProps } from "./types";
-import { useDropdown } from "./useDropdown";
+import type { DropdownProps } from "@/registry/dropdown/types";
+import { useDropdown } from "@/registry/dropdown/useDropdown";
 
 export const Dropdown: React.FC<DropdownProps> = (props) => {
   const {
