@@ -1,7 +1,7 @@
 import React from "react";
-import Ratings from "@registry/ratings/ratings";
-import ProgressBar from "@registry/progress-bar/progress-bar";
-import { Button } from "@registry/button/button";
+import Ratings from "@/registry/ratings/ratings";
+import ProgressBar from "@/registry/progress-bar/progress-bar";
+import { Button } from "@/registry/button/button";
 
 interface RatingScore {
   [key: number]: number;

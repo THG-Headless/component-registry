@@ -1,8 +1,8 @@
 import React from "react";
 import type { InputHTMLAttributes } from "react";
-import RatingInput from "@registry/rating-input/rating-input";
-import FieldWrapper from "@registry/field-wrapper/field-wrapper";
-import type { FieldProps } from "@registry/field-wrapper/field-wrapper";
+import RatingInput from "@/registry/rating-input/rating-input";
+import FieldWrapper from "@/registry/field-wrapper/field-wrapper";
+import type { FieldProps } from "@/registry/field-wrapper/field-wrapper";
 
 // Define the specific props for RatingInput
 type RatingInputSpecificProps = {
